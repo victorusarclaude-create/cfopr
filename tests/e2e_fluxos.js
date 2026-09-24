@@ -9,14 +9,17 @@ const S=OUT+'/';
   await A('welcomeOk');
   // cronômetro
   await A('gtToggle'); await page.waitForTimeout(300); await A('gtToggle'); await A('gtStop');
-  // jogo da missão
+  // jogo da missão: agora abre o jogo na Arena; joga errando de propósito algumas rodadas
   await safe(page.locator('.mis [data-a="gOpen"]').first()); await page.waitForTimeout(300);
-  let g=0; while(g++<14){ await cel(); const done=await ev(()=>{const G=window.__app.tutor.game; return !G||G.done;}); if(done) break;
-    const hasOrd=await page.locator('#app [data-a="gOrd"]').count(); if(hasOrd){ await safe(page.locator('#app [data-a="gOrd"]').first()); continue; }
-    await safe(page.locator('#app [data-a="gPick"]').first()); await page.waitForTimeout(120); await cel(); if(await page.locator('#app [data-a="gNext"]').count()) await A('gNext'); }
+  await A('arPlay','#app [data-a="arPlay"].primary'); await page.waitForTimeout(200);
+  let g=0; while(g++<14){ await cel(); const st=await ev(()=>{ const G=window.__app.arCur(); if(!G||G.done) return null; const r=G.rounds[G.pos]; return {k:r.k,right:r.right,n:r.opts?r.opts.length:0,inp:!!r.inp,pos:G.pos}; }); if(!st) break;
+    if(['choice','tf'].includes(st.k)||(st.k==='num'&&!st.inp)) await safe(page.locator('#app [data-a="arAns"][data-j="'+(st.pos%3===0?(st.right+1)%st.n:st.right)+'"]').first());
+    else await ev(()=>{ const A=window.__app.A, G=window.__app.arCur(); G.pick=-9; window.__app.arCur(); });
+    const ans=await ev(()=>window.__app.arCur().ans); if(!ans){ await ev(()=>{ const G=window.__app.arCur(); G.ans=true; G.res={ok:false,frac:0}; G.tot++; G.wrong.push(G.pos); }); }
+    await page.waitForTimeout(120); await cel(); if(await page.locator('#app [data-a="arNext"]').count()) await A('arNext'); }
   await page.screenshot({path:S+'10_game_end.png',fullPage:true});
   log('after game: xp',await ev(()=>window.__app.xpTotal()),'erros',await ev(()=>window.__app.S.erros.length));
-  await cel(); await A('gCards'); await A('gClose');
+  await cel(); await A('arGame','#app [data-a="arGame"]'); await A('arHome','#app [data-a="arHome"]'); await A('arBack');
   // flashcards via teclado
   await A('smartOpen'); await page.waitForTimeout(200);
   for(let i=0;i<5;i++){ await page.keyboard.press('Space'); await page.waitForTimeout(80); if(i===0) await page.screenshot({path:S+'11_flash.png'}); await page.keyboard.press(String(1+(i%4))); await page.waitForTimeout(80); await cel(); }

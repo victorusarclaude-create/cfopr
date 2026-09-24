@@ -2,6 +2,6 @@
 # Roda todos os testes contra o "Plano Cadete CBMPR.html" gerado pelo build.sh.
 set -e
 cd "$(dirname "$0")"
-for t in e2e_fluxos.js sincronizacao.js modos_e_desempenho.js atualizacao_do_app_antigo.js; do
+for t in e2e_fluxos.js sincronizacao.js modos_e_desempenho.js atualizacao_do_app_antigo.js arena_fuzz.js arena_e2e.js; do
   echo "== $t"; node "$t"
 done

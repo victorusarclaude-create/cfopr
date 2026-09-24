@@ -223,6 +223,7 @@ function localQuiz(tid,nivel){
   const out=[], seen=new Set(), add=q=>{ if(out.length<5&&q&&!seen.has(q.enunciado)){ seen.add(q.enunciado); out.push(q); } };
   (S.qbank[tid]||[]).slice().reverse().forEach(q=>add({enunciado:q.q,alternativas:q.o,correta:q.r,explicacao:q.x||''}));
   if(TESTE80[tid]) shuffle(TESTE80[tid].qs).forEach(q=>add({enunciado:q.q,alternativas:q.o,correta:q.r,explicacao:q.x||''}));
+  ARENA.filter(g=>g.t===tid).forEach(g=>{ const seen2=new Set(); for(let i=0;i<12&&out.length<5;i++){ const r=arMake(g,clamp((nivel||0)+2+rI(0,1),1,5),seen2,true); if(r&&!r.fig&&r.opts.length>=4) add({enunciado:stripQ(r.q),alternativas:r.opts.slice(0,5),correta:r.right,explicacao:r.x||(r.steps?r.steps.join(' '):'')}); } });
   const defs=GAMES.filter(g=>g.t===tid&&['classify','choice','pick','tf','calc'].includes(g.type));
   let guard=0; while(out.length<5&&defs.length&&guard<40){ guard++; const def=one(defs); const r=def.type==='calc'?calcRound(def):buildRound(def,one(def.items.map((_,i)=>i))); if(r&&r.opts&&r.opts.length<=5) add({enunciado:(def.type==='calc'?'':def.title+': ')+stripQ(r.q),alternativas:r.opts,correta:r.right,explicacao:r.x||(r.steps?r.steps.join(' '):'')}); }
   return out.length>=3?out:null;

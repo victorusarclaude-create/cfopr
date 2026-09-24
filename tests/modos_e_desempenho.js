@@ -11,7 +11,7 @@ const ok=(c,m)=>{ console.log((c?'PASS ':'FAIL ')+m); if(!c) process.exitCode=1;
     const errs=errors.filter(e=>!/ERR_FAILED/.test(e)); ok(!errs.length,'sem erros de console'+(errs.length?': '+errs.join(' | '):'')); await browser.close(); }
   // 2) arquivo avulso, sem window.claude
   { const {browser,page,errors}=await launch({noClaude:true,wait:1200}); const sync=await page.textContent('#syncEl'); ok(/aparelho/.test(sync),'arquivo avulso: modo local ("'+sync+'")'); await page.click('[data-a="welcomeOk"]');
-    await page.evaluate(()=>window.__app.A.gOpen({dataset:{id:'pt-crase'}})); await page.waitForTimeout(200); await page.locator('#app [data-a="gPick"]').first().click(); await page.waitForTimeout(200);
+    await page.evaluate(()=>window.__app.A.gOpen({dataset:{id:'ar-port-reg'}})); await page.waitForTimeout(200); await page.locator('#app [data-a="arPlay"]').first().click(); await page.waitForTimeout(200); await page.evaluate(()=>{ const G=window.__app.arCur(); const r=G.rounds[0]; if(r.k!=='choice'&&r.k!=='tf'){ G.rounds[0]={k:'choice',q:'Teste',opts:['a','à'],right:0,t:'port-reg',lvl:1,key:'x'}; window.__app.render(); } }); await page.locator('#app [data-a="arAns"]').first().click(); await page.waitForTimeout(200);
     const errs=errors.filter(e=>!/ERR_FAILED/.test(e)); ok(!errs.length,'arquivo avulso sem erros'+(errs.length?': '+errs.join(' | '):'')); await browser.close(); }
   // 3) tema escuro + largura de computador
   { const {browser,page}=await launch({dark:true,w:1280,h:900}); await page.click('[data-a="welcomeOk"]'); await page.waitForTimeout(300); await page.screenshot({path:S+'30_dark_desktop.png'});

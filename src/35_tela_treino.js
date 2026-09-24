@@ -1,11 +1,12 @@
 
 /* ===================== ESTADO DO TREINO ===================== */
-const tutor={quiz:null,quizGen:null,sim:null,simGen:null,t80:null,game:null,spot:null,ptab:null,map:null,tl:null,match:null,rel:null,flash:null,rf:null,aic:null};
-const MODES=['quiz','quizGen','sim','simGen','t80','game','spot','ptab','map','tl','match','rel','flash'];
+const tutor={arena:null,quiz:null,quizGen:null,sim:null,simGen:null,t80:null,game:null,spot:null,ptab:null,map:null,tl:null,match:null,rel:null,flash:null,rf:null,aic:null};
+const MODES=['arena','quiz','quizGen','sim','simGen','t80','game','spot','ptab','map','tl','match','rel','flash'];
 function clearModes(){ MODES.forEach(k=>{ const v=tutor[k]; if(v&&v.ctl) try{ v.ctl.abort(); }catch(e){} tutor[k]=null; }); }
 function goTreino(){ closeSheetSilently(); UI.tab='tutor'; saveUI(); render(); window.scrollTo(0,0); }
 function activeMode(){ return MODES.find(k=>tutor[k])||null; }
 function inRun(){
+  const AR=tutor.arena; if(AR&&AR.view==='run'&&AR.G&&!AR.G.done) return true; if(AR&&AR.view==='gen') return true;
   const G=tutor.game, F=tutor.flash, M=tutor.sim, Q=tutor.quiz, R=tutor.rf, T8=tutor.t80;
   return !!((G&&!G.done)||(F&&F.pos<F.q.length)||(M&&!M.done)||(Q&&Q.ans.some(a=>a==null))||(R&&!R.done)||(T8&&!T8.done)||tutor.quizGen||tutor.simGen||
     (tutor.spot&&!tutor.spot.done)||(tutor.ptab&&!tutor.ptab.done)||(tutor.tl&&!tutor.tl.done)||(tutor.map&&tutor.map.pos<tutor.map.order.length)||(tutor.match&&!tutor.match.done)||(tutor.rel&&!tutor.rel.over));
@@ -24,6 +25,8 @@ GAMES.push(
  {id:'pt-spot2',s:'port',t:'port-reg',type:'legacy',launch:'spotOpen',title:SPOT_BY_ID['pt-spot2'].title,desc:SPOT_BY_ID['pt-spot2'].desc},
  {id:'qm-ptable',s:'qui',t:'qui-atom',type:'legacy',launch:'ptOpen',title:'Tabela periódica: ache o elemento',desc:'Toque na posição certa da tabela a partir da dica.'},
  ...BUILD_GAMES);
+/* Português, Matemática, Física, Química e História agora vivem na Arena (src/23 a 29). */
+for(let i=GAMES.length-1;i>=0;i--) if(AR_SUBJ.indexOf(GAMES[i].s)>=0) GAMES.splice(i,1);
 const GAME_BY_ID=Object.fromEntries(GAMES.map(g=>[g.id,g]));
 const PLAYABLE=g=>['classify','choice','pick','tf','calc'].includes(g.type);
 const one2=a=>a[Math.floor(Math.random()*a.length)];
@@ -42,6 +45,7 @@ function buildRound(def,i){
 function calcRound(def){ const g=GEN[one2(def.gens)](); return {q:g.q,opts:g.opts,right:g.right,steps:g.steps,t:g.t||def.t,x:''}; }
 /* Uma questão rápida de qualquer matéria, a partir dos bancos do app (usada em simulado, Relâmpago e Chefão) */
 function offlineQuestion(s){
+  if(AR_SUBJ.indexOf(s.id)>=0) return arOffline(s.id);
   const gs=GAMES.filter(g=>g.s===s.id&&PLAYABLE(g)); if(!gs.length) return null;
   const def=one2(gs); const r=def.type==='calc'?calcRound(def):buildRound(def,one2(gItemsIdx(def,5)));
   let opts=r.opts, right=r.right;
@@ -50,8 +54,11 @@ function offlineQuestion(s){
   return {q,opts,right,x:r.x||'',steps:r.steps,t:r.t,s:s.id,gid:def.id,i:r.i};
 }
 function recGame(){
+  const ar=arRecommend(null), rs=ar?SUBJ[ar.s]:null;
   let best=null,bv=-1;
   SUBJECTS.forEach(s=>{ if(!GAMES.some(g=>g.s===s.id&&PLAYABLE(g))) return; const v=s.q*(1.05-subjMastery(s.id)); if(v>bv){ bv=v; best=s; } });
+  const va=ar?rs.q*(1.05-subjMastery(rs.id)):-1;
+  if(ar&&va>=bv) return {id:ar.id,title:ar.nome,s:ar.s,arena:true};
   if(!best) return null;
   const gs=GAMES.filter(g=>g.s===best.id&&PLAYABLE(g));
   gs.sort((a,b)=>(topicMastery(a.t)-topicMastery(b.t))||(((S.gb[a.id]||{}).plays||0)-((S.gb[b.id]||{}).plays||0)));
@@ -62,6 +69,7 @@ function recGame(){
    Modos: normal (10 rodadas), desafio (3 vidas), relâmpago (60 s, avança sozinho)
    e chefão (a barra de vida do chefe cai a cada acerto; combos batem mais forte). */
 function openGame(id,opts){
+  if(AR_BY[id]){ arOpenGame(id); return; }
   opts=opts||{};
   const def=GAME_BY_ID[id]; if(!def) return;
   if(def.type==='legacy'){ clearModes(); A[def.launch]({dataset:{id:def.id}}); return; }
@@ -205,9 +213,9 @@ function viewGameEnd(G){
 function errsToCards(list){ let n=0; list.forEach(x=>{ const D0=S.flashcards[x.t]||(S.flashcards[x.t]=[]); if(D0.some(c=>c.f===x.f)) return; D0.push(newCard(x.f,x.b,{custom:true})); n++; }); commit(); return n; }
 function gamesCatalogHTML(){
   const rec=recGame(); let h='';
-  if(rec) h+='<div class="recgame"><span class="small muted">Recomendado agora</span><strong>'+esc(rec.title)+'</strong><span class="small muted">'+esc(SUBJ[rec.s].nome)+': a matéria com mais peso na prova e menos domínio seu.</span><button class="btn primary" data-a="gOpen" data-id="'+rec.id+'">Jogar</button></div>';
+  if(rec&&!rec.arena) h+='<div class="recgame"><span class="small muted">Recomendado agora</span><strong>'+esc(rec.title)+'</strong><span class="small muted">'+esc(SUBJ[rec.s].nome)+': a matéria com mais peso na prova e menos domínio seu.</span><button class="btn primary" data-a="gOpen" data-id="'+rec.id+'">Jogar</button></div>';
   const tIdx=(sid,tid)=>{ const l=S.topicList[sid]||[]; const i=l.findIndex(t=>t.id===tid); return i<0?999:i; };
-  SUBJECTS.forEach(s=>{ const gs=GAMES.filter(g=>g.s===s.id).sort((a,b)=>tIdx(s.id,a.t)-tIdx(s.id,b.t)); if(!gs.length) return; const m=subjMastery(s.id), cl=mCls(m), rec2=S.modes[s.id]||{};
+  SUBJECTS.forEach(s=>{ if(AR_SUBJ.indexOf(s.id)>=0) return; const gs=GAMES.filter(g=>g.s===s.id).sort((a,b)=>tIdx(s.id,a.t)-tIdx(s.id,b.t)); if(!gs.length) return; const m=subjMastery(s.id), cl=mCls(m), rec2=S.modes[s.id]||{};
     h+='<details class="subj"><summary><span class="sn"><i class="mdot" style="background:var(--'+cl+')"></i>'+esc(s.nome)+'</span><span class="sq '+cl+'">'+gs.length+(gs.length===1?' jogo':' jogos')+' · '+Math.round(m*100)+'%</span></summary><div class="inner">';
     h+='<div class="row modes"><button class="btn sm" data-a="relOpenS" data-s="'+s.id+'">'+ICO.bolt+' Relâmpago'+(rec2.rel?' · '+rec2.rel+' pts':'')+'</button><button class="btn sm" data-a="bossOpen" data-s="'+s.id+'">'+ICO.crown+' Chefão'+(rec2.wins?' · '+rec2.wins+'×':'')+'</button></div>';
     h+='<ul class="list">'+gs.map(g=>{ const gb=S.gb[g.id]; return '<li class="gamerow"><span><span class="nm">'+esc(g.title)+'</span><br><span class="small muted">'+esc(g.desc||'')+(gb&&gb.plays?' Recorde: '+gb.best+' XP.':'')+'</span></span><button class="btn sm" data-a="gOpen" data-id="'+g.id+'">Jogar</button></li>'; }).join('')+'</ul></div></details>'; });
@@ -218,7 +226,7 @@ function sheetModes(kind){
   const boss=kind==='boss';
   let h='<h2 id="sheetTitle">'+(boss?'Chefão da matéria':'Relâmpago')+'</h2><p class="small muted">'+(boss?'15 questões para derrubar a barra de vida do chefão. Acertos seguidos batem mais forte; 3 erros e você cai. Vencer dá +80 XP.':'60 segundos, uma questão atrás da outra. Acertos seguidos valem mais. Ótimo para aquecer.')+'</p><div class="modegrid">';
   if(!boss) h+='<button class="modecard" data-a="relOpenS" data-s="all"><b>Todas as matérias</b><span>no peso do edital</span></button>';
-  SUBJECTS.forEach(s=>{ if(!GAMES.some(g=>g.s===s.id&&PLAYABLE(g))) return; const r=S.modes[s.id]||{}, m=subjMastery(s.id);
+  SUBJECTS.forEach(s=>{ if(!GAMES.some(g=>g.s===s.id&&PLAYABLE(g))&&AR_SUBJ.indexOf(s.id)<0) return; const r=S.modes[s.id]||{}, m=subjMastery(s.id);
     h+='<button class="modecard" data-a="'+(boss?'bossOpen':'relOpenS')+'" data-s="'+s.id+'"><b>'+esc(s.nome)+'</b><span>'+(boss?(r.wins?r.wins+(r.wins===1?' vitória':' vitórias'):'não derrotado'):(r.rel?'recorde '+r.rel+' pts':'sem recorde'))+' · '+Math.round(m*100)+'%</span></button>'; });
   openSheet(h+'</div>');
 }
@@ -423,7 +431,7 @@ function pauseQuizTimer(){ const Q=tutor.quiz; if(Q&&Q.running){ Q.time[Q.runnin
 /* ===================== SIMULADO ===================== */
 function wpick(pool){ const tot=pool.reduce((a,p)=>a+p.w,0); let r=Math.random()*tot; for(const p of pool){ r-=p.w; if(r<=0) return p; } return pool[pool.length-1]; }
 function buildOffline(mode,sid,n){
-  const subs=SUBJECTS.filter(s=>(!sid||s.id===sid)&&GAMES.some(g=>g.s===s.id&&PLAYABLE(g)));
+  const subs=SUBJECTS.filter(s=>(!sid||s.id===sid)&&(AR_SUBJ.indexOf(s.id)>=0||GAMES.some(g=>g.s===s.id&&PLAYABLE(g))));
   if(!subs.length) return [];
   const studied=t=>topicEvidence(t).N>=1;
   const pool=subs.map(s=>({s,w:s.q*(mode==='fraq'?Math.pow(1.1-subjMastery(s.id),2):1)}));
@@ -540,7 +548,7 @@ function viewTreinoHub(){
   h+=hubCard(ICO.redo,'Revisão inteligente',fd?'Cartões vencendo, das matérias mais fracas primeiro':'Nada vencendo: estude cartões novos','smartOpen','',fd?String(fd):'');
   h+=hubCard(ICO.flag,'Caderno de erros',ed?'Erros que voltam hoje como questão':'Tudo em dia','tab',' data-v="erros"',ed?String(ed):'');
   h+='</div><h2>Praticar</h2><div class="hubgrid">';
-  h+=hubCard(ICO.game,'Jogos por matéria',GAMES.length+' jogos em ordem de evolução','hubGames');
+  h+=hubCard(ICO.game,'Arena de jogos',ARENA.length+' jogos com 5 níveis cada, um por tópico','hubGames','',ARENA.length?'NOVO':'');
   h+=hubCard(ICO.bolt,'Relâmpago','60 segundos, questão atrás de questão','relSheet');
   h+=hubCard(ICO.crown,'Chefão da matéria','Derrube a barra de vida com combos','bossSheet');
   h+=hubCard(ICO.medal,'Teste 80/20','Os padrões que mais caem. '+t80p+' selos','t80List');
@@ -555,6 +563,7 @@ function viewTreinoHub(){
 }
 function viewTutor(){
   let h=pageHead('Treino');
+  if(tutor.arena) return h+viewArena();
   if(tutor.simGen) return h+viewSimGen();
   if(tutor.sim) return h+viewSim();
   if(tutor.quizGen) return h+viewQuizGen();

@@ -13,6 +13,9 @@ O produto é um arquivo só: **`Plano Cadete CBMPR.html`**. Ele é gerado a part
 | `src/20_resumos.js` | Resumos essenciais de todos os tópicos |
 | `src/21_flashcards.js` | Baralhos dos tópicos de Direito, Bombeiro, Inglês e Geografia |
 | `src/22_teste80.js` | Teste 80/20 de Primeiros Socorros, Combate a Incêndio e Direito |
+| `src/23_arena_base.js` | Arena de jogos: tipos de rodada, alternativas numéricas, figuras em SVG |
+| `src/24_arena_port.js` a `src/28_arena_hist.js` | Um jogo por tópico de Português, Matemática, Física, Química e História, cada um com 5 níveis gerados na hora |
+| `src/29_arena_motor.js` | Motor da Arena: partidas, estrelas, liberação de níveis, Contra o relógio, Nivelamento, rodada com IA e as telas |
 | `src/30_nucleo.js` | Estado, migração de versões antigas, domínio, XP, nível, sequência |
 | `src/31_missoes_sync.js` | Missões do dia, conquistas e sincronização na conta (com mesclagem) |
 | `src/32_som_efeitos.js` | Sons, vibração, confete e celebrações |
@@ -38,3 +41,5 @@ Os testes abrem o app num Chromium sem interface, com um Claude simulado, e pass
 npm i -g playwright   # uma vez
 sh tests/run_all.sh
 ```
+
+A Arena tem dois testes próprios: `node tests/arena_fuzz.js` gera 120 rodadas de cada nível de cada jogo e valida a estrutura; `node tests/arena_e2e.js` joga partidas completas clicando em todos os tipos de rodada.

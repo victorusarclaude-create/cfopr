@@ -235,6 +235,7 @@ function mergeState(A,B,only){
   if(has('t80')){ O.t80={}; new Set(Object.keys(A.t80||{}).concat(Object.keys(B.t80||{}))).forEach(t=>{ const x=(A.t80||{})[t]||{}, y=(B.t80||{})[t]||{}; O.t80[t]={tries:maxN(x.tries,y.tries),best:maxN(x.best,y.best),passed:!!(x.passed||y.passed)}; }); }
   if(has('gb')){ O.gb={}; new Set(Object.keys(A.gb||{}).concat(Object.keys(B.gb||{}))).forEach(g=>{ const x=(A.gb||{})[g]||{}, y=(B.gb||{})[g]||{}; O.gb[g]={best:maxN(x.best,y.best),plays:maxN(x.plays,y.plays)}; }); }
   if(has('modes')){ O.modes={}; new Set(Object.keys(A.modes||{}).concat(Object.keys(B.modes||{}))).forEach(s=>{ const x=(A.modes||{})[s]||{}, y=(B.modes||{})[s]||{}; O.modes[s]={wins:maxN(x.wins,y.wins),best:maxN(x.best,y.best),rel:maxN(x.rel,y.rel)}; }); }
+  if(has('arena')){ O.arena={}; new Set(Object.keys(A.arena||{}).concat(Object.keys(B.arena||{}))).forEach(g=>{ const x=(A.arena||{})[g]||{}, y=(B.arena||{})[g]||{}; O.arena[g]={lv:Math.max(x.lv||1,y.lv||1),st:[0,1,2,3,4].map(i=>Math.max((x.st||[])[i]||0,(y.st||[])[i]||0)),p:maxN(x.p,y.p),rel:maxN(x.rel,y.rel),r:[...new Set([].concat(y.r||[],x.r||[]))].slice(-40)}; }); }
   if(has('games')) O.games=Object.assign({},B.games||{},A.games||{});
   if(has('hist')) O.hist=Object.assign({},A.hist||{},B.hist||{});
   if(has('cfg')) O.cfg=((B.cfg||{}).at||0)>((A.cfg||{}).at||0)?B.cfg:A.cfg;

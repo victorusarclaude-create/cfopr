@@ -39,9 +39,9 @@ function defaultState(){
   SUBJECTS.forEach(s=>{ topicList[s.id]=s.topicos.map(([id,nome,base])=>({id,nome,base:!!base})); });
   Object.keys(FLASHCARDS).forEach(t=>{ flashcards[t]=seedDeck(t); });
   return {v:2,updatedAt:0,welcomed:false,newsV:NEWS_V,topicList,topics:{},days:{},erros:[],redacoes:[],flashcards,games:{},gb:{},gm:{},mst:{},ach:{},t80:{},sims:[],hist:{},visits:{},
-    cfg:{goal:200,exam:'',name:'',at:0},qbank:{},notes:{},modes:{},cardDel:{},seedV:SEED_V,streakMig:today(),xpMig:true,evMig:true,achInit:true};
+    cfg:{goal:200,exam:'',name:'',at:0},qbank:{},notes:{},modes:{},arena:{},cardDel:{},seedV:SEED_V,streakMig:today(),xpMig:true,evMig:true,achInit:true};
 }
-const OBJ_KEYS=['topics','days','games','gb','gm','mst','ach','t80','hist','visits','qbank','notes','modes','cardDel'];
+const OBJ_KEYS=['topics','days','games','gb','gm','mst','ach','t80','hist','visits','qbank','notes','modes','arena','cardDel'];
 function migrate(o){
   const d=defaultState();
   if(!o||typeof o!=='object'||Array.isArray(o)) return d;
@@ -114,13 +114,13 @@ function allTopics(){ const out=[]; SUBJECTS.forEach(s=>(S.topicList[s.id]||[]).
 
 /* ===================== DOMÍNIO (evidência com esquecimento) ===================== */
 const HALF=45;
-const SRCW={q:[0.6,1,1.4,1.4],sim:1.2,game:0.5,card:0.35,teste80:1.3};
+const SRCW={q:[0.6,1,1.4,1.4],sim:1.2,game:0.5,gl:[0.35,0.45,0.6,0.8,1],card:0.35,teste80:1.3};
 const CEIL=[0.55,0.75,0.9,1];
 function dayNum(k){ return Math.round(dateOf(k).getTime()/86400000); }
 function addEv(t,src,n,ok,lv){
   if(!t||!n||!topicInfo(t)) return;
   const now=dayNum(today()), T0=S.mst[t]||(S.mst[t]={}), e=T0[src]||(T0[src]={n:0,ok:0,d:now});
-  const f=Math.pow(0.5,(now-e.d)/HALF), w=src==='q'?SRCW.q[clamp(lv||0,0,3)]:(SRCW[src]||0.5);
+  const f=Math.pow(0.5,(now-e.d)/HALF), w=src==='q'?SRCW.q[clamp(lv||0,0,3)]:(src==='game'&&lv!=null?SRCW.gl[clamp(lv,0,4)]:(SRCW[src]||0.5));
   e.n=+(e.n*f+n*w).toFixed(3); e.ok=+(e.ok*f+ok*w).toFixed(3); e.d=now;
   const d=Dm(today());
   if(src==='game') d.g=(d.g||0)+n; else if(src==='card') d.c=(d.c||0)+n;
