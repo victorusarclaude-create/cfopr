@@ -158,7 +158,9 @@ function tipHTML(){
 }
 function viewHoje(){
   const k=today(), d=D(k), x=d.xp||0, g=goalXP(), lv=levelFromXP(xpTotal()), P=patente(), vs=streak(), dte=daysToExam(), ns=nextStep();
-  let h=pageHead('Hoje');
+  const hr=new Date().getHours(), nm=(S.cfg.name||'').trim().split(/\s+/)[0];
+  const sau=(hr<5?'Boa noite':hr<12?'Bom dia':hr<18?'Boa tarde':'Boa noite')+(nm?', '+esc(nm):'')+'.';
+  let h=pageHead('Hoje',sau+' '+(vs>=2?'São '+vs+' dias seguidos: mantenha a chama acesa.':'Um passo de cada vez rumo à farda.'));
   h+='<section class="hero-hoje">';
   h+='<div class="hh-top"><button class="hh-rank" data-a="rankOpen" aria-label="Patente e nível"><span class="insig">'+insigniaSVG(P.idx)+'</span><span class="hh-rt"><b>'+esc(PATENTES[P.idx])+'</b><span>Nível '+lv.L+' · '+cuN(xpTotal())+' XP</span></span></button>';
   h+='<button class="ring goal" id="goalRing" data-a="metOpen" aria-label="Meta do dia: '+x+' de '+g+' XP">'+goalRingInner(x,g)+'</button></div>';

@@ -8,7 +8,7 @@ O produto é um arquivo só: **`Plano Cadete CBMPR.html`**. Ele é gerado a part
 
 | Arquivo | O que tem |
 | --- | --- |
-| `src/00_page.html` | Título, estilos (tema claro e escuro) e a estrutura da página |
+| `src/00_page.html` | Título, estilos (tema claro e escuro, fonte Inter, animações) e a estrutura da página |
 | `src/10_dados.js` | Edital, fontes oficiais, bancos de jogos, geradores de cálculo, Teste 80/20 |
 | `src/20_resumos.js` | Resumos essenciais de todos os tópicos |
 | `src/21_flashcards.js` | Baralhos dos tópicos de Direito, Bombeiro, Inglês e Geografia |
@@ -18,7 +18,7 @@ O produto é um arquivo só: **`Plano Cadete CBMPR.html`**. Ele é gerado a part
 | `src/29_arena_motor.js` | Motor da Arena: partidas, estrelas, liberação de níveis, Contra o relógio, Nivelamento, rodada com IA e as telas |
 | `src/30_nucleo.js` | Estado, migração de versões antigas, domínio, XP, nível, sequência |
 | `src/31_missoes_sync.js` | Missões do dia, conquistas e sincronização na conta (com mesclagem) |
-| `src/32_som_efeitos.js` | Sons, vibração, confete e celebrações |
+| `src/32_som_efeitos.js` | Sons (tocados no instante do toque), ondulação dos botões, vibração, confete e celebrações |
 | `src/33_ia.js` | Tudo que usa o Claude: questões, simulado, Instrutor, aulas, correção de redação |
 | `src/34_tela_hoje.js` | Tela Hoje e cronômetro de foco |
 | `src/35_tela_treino.js` | Jogos, Relâmpago, Chefão, flashcards, simulado, Teste 80/20 |

@@ -10,7 +10,7 @@ function openSheet(html,opts){
   opts=opts||{};
   const sh=$('#sheet'), pn=$('#sheet .panel'), body=$('#sheetBody'), same=!!opts.key&&SHEET.key===opts.key&&!sh.hidden;
   const keep=same?captureInputs(body):null, top=same?pn.scrollTop:0;
-  if(sh.hidden) SHEET.opener=document.activeElement;
+  if(sh.hidden){ SHEET.opener=document.activeElement; SND.sheet(); }
   SHEET.key=opts.key||null;
   body.innerHTML='<div class="sheet-bar"><button class="sheet-close" data-a="closeSheet" aria-label="Fechar">'+ICO.x+'</button></div>'+html;
   sh.hidden=false; document.body.classList.add('sheet-open'); $('#fab').hidden=true;
@@ -33,6 +33,7 @@ const TABS=[['hoje','Hoje',svgI('<path d="M4 11l8-7 8 7v9H4z"/><path d="M10 20v-
 let lastTab=null;
 function renderTabs(){
   const due=rfDue().length, fd=totalFlashDue();
+  const ti=Math.max(0,TABS.findIndex(t=>t[0]===UI.tab)); $('#tabsIn').style.setProperty('--ti',ti);
   $('#tabsIn').innerHTML=TABS.map(([id,nm,ic])=>'<button data-a="tab" data-v="'+id+'"'+(UI.tab===id?' aria-current="page"':'')+'>'+ic+'<span>'+nm+'</span>'+(id==='erros'&&due?'<span class="dot">'+due+'</span>':'')+(id==='tutor'&&fd?'<span class="dot">'+(fd>99?'99+':fd)+'</span>':'')+'</button>').join('');
   if(UI.tab!==lastTab){ lastTab=UI.tab; const svg=$('#tabsIn button[aria-current="page"] svg'); if(svg) svg.classList.add('navdraw'); }
 }
@@ -44,13 +45,17 @@ function restoreFocus(sig,had){
   if(!el) el=app.querySelector('.nextbtn')||app.querySelector('.fc-front')||app.querySelector('.alt:not([disabled])')||app.querySelector('h1');
   if(el){ if(el.tagName==='H1') el.setAttribute('tabindex','-1'); try{ el.focus({preventScroll:true}); }catch(e){} }
 }
-let pendingRender=false;
+let pendingRender=false, ENTER=null;
+/* Pede a animação de entrada para o próximo render: 'enter' (tela nova, em cascata) ou 'newq' (rodada nova).
+   Renders comuns tiram a classe, para a animação não repetir a cada toque. */
+function animNext(k){ ENTER=k||'enter'; }
 function render(){
   const app=$('#app'), keep=captureInputs(app), had=app.contains(document.activeElement), sig=focusSig();
   const v={hoje:viewHoje,mapa:viewMapa,erros:viewErros,redacao:viewRedacao,tutor:viewTutor}[UI.tab]||viewHoje;
   let html;
   try{ html=v(); }catch(e){ console.error(e); html=pageHead('Ops')+'<p class="badbox">Algo deu errado nesta tela. Seus dados estão salvos.</p><button class="btn primary" data-a="panic">Voltar ao início</button>'; }
   app.innerHTML=html; restoreInputs(app,keep); DROP.clear();
+  app.classList.remove('enter','newq'); if(ENTER&&!REDUCED){ void app.offsetWidth; app.classList.add(ENTER); } ENTER=null;
   renderTabs(); mountCountUps(app); drawGTBar(); restoreFocus(sig,had);
   const G=tutor.game; $('#fab').hidden=!$('#sheet').hidden||(G&&G.mode==='relampago'&&!G.done);
   pendingRender=false;
@@ -70,7 +75,7 @@ const UNDO=new Set(['saveLog','setRung','rename','delTopic','saveTopic','saveErr
 const val=id=>{ const el=$('#'+id); return el?el.value:''; };
 const A={
   /* navegação */
-  tab:b=>{ pauseQuizTimer(); UI.tab=b.dataset.v; saveUI(); closeSheetSilently(); render(); window.scrollTo(0,0); const a=$('#app'); a.classList.remove('enter'); void a.offsetWidth; a.classList.add('enter'); },
+  tab:b=>{ pauseQuizTimer(); UI.tab=b.dataset.v; saveUI(); closeSheetSilently(); animNext(); render(); window.scrollTo(0,0); },
   closeSheet:()=>closeSheet(),
   celClose:()=>{ FX.close(); if(pendingRender&&$('#sheet').hidden) render(); },
   panic:()=>{ clearModes(); tutor.rf=null; UI.tab='hoje'; saveUI(); render(); },

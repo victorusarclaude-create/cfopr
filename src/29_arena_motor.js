@@ -81,7 +81,7 @@ function arNext(){
   if(G.mode==='rel'){ if(Date.now()>=G.end){ arFinish(G); return; } const r=arMake(g,G.L,G.seen,true); if(r){ arPrep(G,r); G.rounds.push(r); } }
   if(G.mode==='niv'&&G.pos<G.max){ const last=G.hist[G.hist.length-1]; G.nl=clamp(G.nl+(last&&last.ok?1:-1),1,5); const r=arMake(g,G.nl,G.seen); if(r){ arPrep(G,r); G.rounds.push(r); } }
   if(G.pos>=G.rounds.length){ arFinish(G); return; }
-  render(); window.scrollTo(0,0);
+  animNext('newq'); render(); window.scrollTo(0,0);
 }
 function arFinish(G){
   if(G.done) return; G.done=true; G.secs=Math.round((Date.now()-G.start)/1000);
@@ -95,11 +95,12 @@ function arFinish(G){
     if(G.stars===3&&prev<3){ gainXP(25); G.xp+=25; }
     if(G.stars>=2&&G.L>=rec.lv&&G.L<5){ rec.lv=G.L+1; G.unlocked=G.L+1; gainXP(40); G.xp+=40; }
     if(G.stars>=2&&G.L===5&&prev<2) G.mastered=true;
-    if(G.stars===3){ SND.flawless(); setTimeout(()=>FX.confetti(1),250); } else if(G.unlocked||G.mastered){ SND.level(); setTimeout(()=>FX.confetti(0.7),250); } else if(G.stars>=1) SND.level(); else SND.bad();
   } else if(G.mode==='rel'){ G.isBest=G.score>(rec.rel||0); if(G.isBest) rec.rel=G.score; SND.timerEnd(); if(G.isBest&&G.score>0) setTimeout(()=>FX.confetti(0.6),200); }
   else if(G.mode==='niv'){ let P=1; for(let L=5;L>=1;L--){ const c=G.hist.filter(h=>h.L===L&&h.ok).length, w=G.hist.filter(h=>h.L===L&&!h.ok).length; if(c>=1&&c>=w){ P=L; break; } } G.place=P; if(P>rec.lv){ rec.lv=P; G.unlocked=P; } SND.level(); }
   else SND.level();
-  G.m1=topicMastery(g.t); snapWeek(); commit(); afterAction(); render(); window.scrollTo(0,0);
+  G.m1=topicMastery(g.t); snapWeek(); commit(); FX.hold(G.mode==='run'?1700:700); afterAction(); animNext(); render(); window.scrollTo(0,0);
+  /* as estrelas entram em .1s, .3s e .5s (CSS): o som de cada uma e o confete saem no mesmo compasso */
+  if(G.mode==='run'){ const big=G.stars===3||G.unlocked||G.mastered; SND.stars(G.stars,big); if(big) setTimeout(()=>FX.confetti(G.stars===3?1:0.7),(0.4+0.2*G.stars)*1000); }
 }
 
 /* ---------- Rodada com IA ---------- */
@@ -160,7 +161,7 @@ function viewArenaGame(){
   const g=AR_BY[tutor.arena.gid], info=topicInfo(g.t), rec=arPeek(g.id), u=arUnl(g.id);
   let h='<div class="ghead"><button class="backbtn" data-a="arHome" data-s="'+g.s+'" aria-label="Voltar à Arena">'+ICO.x+'</button><div><span class="small muted">'+esc(SUBJ[g.s].nome)+' · '+esc(info?info.t.nome:'')+'</span><h2>'+esc(g.nome)+'</h2></div></div>';
   h+='<div class="aghero s-'+g.s+'"><span class="agh-ic">'+esc(g.ic)+'</span><div><p>'+esc(g.desc)+'</p><div class="agkinds">'+arKinds(g).map(k=>'<span>'+esc(AR_KIND[k]||k)+'</span>').join('')+'</div></div></div>';
-  h+='<ol class="lvpath">'+g.lv.map((l,i)=>{ const L=i+1, st=rec.st[i]||0, open=L<=u, cur=L===u;
+  h+='<ol class="lvpath s-'+g.s+'">'+g.lv.map((l,i)=>{ const L=i+1, st=rec.st[i]||0, open=L<=u, cur=L===u;
     return '<li class="'+(st>=2?'done':'')+(cur?' cur':'')+(open?'':' locked')+'"><button data-a="arPlay" data-g="'+g.id+'" data-l="'+L+'"'+(open?'':' disabled aria-disabled="true"')+'><span class="lvn">'+(open?L:AR_LOCK)+'</span><span class="lvt"><b>Nível '+L+' · '+esc(AR_LV[i].n)+'</b><span>'+esc(l.d)+'</span></span>'+arStarsHTML(st)+'</button></li>'; }).join('')+'</ol>';
   h+='<p class="small muted">Acerte 8 de 10 para liberar o próximo nível. 10 de 10 vale 3 estrelas. Em cada partida, duas rodadas revisam o nível anterior, e a última vale XP em dobro.</p>';
   h+='<div class="stack"><button class="btn primary block" data-a="arPlay" data-g="'+g.id+'" data-l="'+u+'">'+ICO.play+' Jogar nível '+u+'</button>';
@@ -280,8 +281,8 @@ function viewArena(){ const v=tutor.arena.view; return v==='home'?viewArenaHome(
 /* ---------- ações ---------- */
 const ARENA_A={
   arHome:b=>arOpenHome(b.dataset.s),
-  arTab:b=>{ tutor.arena={view:'home',sid:b.dataset.s}; UI.arS=b.dataset.s; saveUI(); render(); },
-  arBack:()=>{ tutor.arena=null; render(); window.scrollTo(0,0); },
+  arTab:b=>{ tutor.arena={view:'home',sid:b.dataset.s}; UI.arS=b.dataset.s; saveUI(); animNext(); render(); },
+  arBack:()=>{ tutor.arena=null; animNext(); render(); window.scrollTo(0,0); },
   arGame:b=>arOpenGame(b.dataset.g),
   arPlay:b=>{ const u=arUnl(b.dataset.g), L=+b.dataset.l||u; if(L>u) return; arStart(b.dataset.g,L,'run'); },
   arRel:b=>arStart(b.dataset.g,arUnl(b.dataset.g),'rel'),

@@ -3,7 +3,7 @@
 const tutor={arena:null,quiz:null,quizGen:null,sim:null,simGen:null,t80:null,game:null,spot:null,ptab:null,map:null,tl:null,match:null,rel:null,flash:null,rf:null,aic:null};
 const MODES=['arena','quiz','quizGen','sim','simGen','t80','game','spot','ptab','map','tl','match','rel','flash'];
 function clearModes(){ MODES.forEach(k=>{ const v=tutor[k]; if(v&&v.ctl) try{ v.ctl.abort(); }catch(e){} tutor[k]=null; }); }
-function goTreino(){ closeSheetSilently(); UI.tab='tutor'; saveUI(); render(); window.scrollTo(0,0); }
+function goTreino(){ closeSheetSilently(); UI.tab='tutor'; saveUI(); animNext(); render(); window.scrollTo(0,0); }
 function activeMode(){ return MODES.find(k=>tutor[k])||null; }
 function inRun(){
   const AR=tutor.arena; if(AR&&AR.view==='run'&&AR.G&&!AR.G.done) return true; if(AR&&AR.view==='gen') return true;
@@ -562,7 +562,7 @@ function viewTreinoHub(){
   return h+'</div>';
 }
 function viewTutor(){
-  let h=pageHead('Treino');
+  let h=activeMode()?header():pageHead('Treino');
   if(tutor.arena) return h+viewArena();
   if(tutor.simGen) return h+viewSimGen();
   if(tutor.sim) return h+viewSim();
