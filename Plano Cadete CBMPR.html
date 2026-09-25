@@ -7072,9 +7072,20 @@ function jnLegend(st){
 }
 /* narração opcional (voz do aparelho): lê cada cena uma vez, ao entrar nela */
 function jnHush(){ try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){} }
+/* voz: escolhe a mais natural do aparelho (neurais/online/"premium" primeiro) e lê frase por frase,
+   com pausas curtas, o que soa menos robótico e evita o corte de falas longas no Chrome */
+function jnVoice(){
+  const vs=(window.speechSynthesis.getVoices()||[]).filter(v=>/^pt/i.test(v.lang)); if(!vs.length) return null;
+  const sc=v=>(/^pt[-_]BR/i.test(v.lang)?50:0)+(/natural|neural|online|premium|enhanced|aprimorad|wavenet/i.test(v.name)?40:0)+(/google/i.test(v.name)?25:0)+(/francisca|antonio|thalita|luciana|felipe|camila|vitoria|daniel/i.test(v.name)?15:0)+(v.localService?0:5);
+  return vs.slice().sort((a,b)=>sc(b)-sc(a))[0];
+}
 function jnSpeak(t){ try{ const sp=window.speechSynthesis; if(!sp||!t) return; sp.cancel();
-  const u=new SpeechSynthesisUtterance(stripQ(t).replace(/\n+/g,'. ').replace(/[“”]/g,'')); u.lang='pt-BR'; u.rate=1.02;
-  const v=(sp.getVoices()||[]).find(x=>/^pt[-_]BR/i.test(x.lang)); if(v) u.voice=v; sp.speak(u); }catch(e){} }
+  const txt=stripQ(t).replace(/[“”"]/g,'').replace(/\s*→\s*/g,', depois ').replace(/\bséc\.\s*/gi,'século ').replace(/\bnº\s*/gi,'número ').replace(/(\d)\.(\d{3})/g,'$1$2');
+  const parts=txt.split(/\n+|(?<=[.!?:;])\s+/).map(x=>x.trim()).filter(Boolean);
+  const v=jnVoice();
+  parts.forEach((x,i)=>{ const u=new SpeechSynthesisUtterance(x); u.lang=v?v.lang:'pt-BR'; if(v) u.voice=v; u.rate=v&&!v.localService?1:0.95; u.pitch=1.03; u.volume=1; sp.speak(u); });
+}catch(e){} }
+try{ if(window.speechSynthesis) speechSynthesis.addEventListener('voiceschanged',()=>{}); }catch(e){}
 function jnNarrate(){
   const J=tutor.jn; if(!J||UI.tab!=='tutor'||J.view!=='cap'){ if(jnNarrate.k){ jnNarrate.k=null; jnHush(); } return; }
   if(!UI.jnVoz) return; const k=J.ci+':'+J.si; if(jnNarrate.k===k) return; jnNarrate.k=k;
