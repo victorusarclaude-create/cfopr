@@ -1,0 +1,49 @@
+# Plano Cadete CBMPR
+
+App de estudos para a prova de Cadete do Corpo de Bombeiros Militar do Paraná (CFO). Roda como artifact no Claude, com sincronização na conta e o Claude como tutor dentro do app.
+
+O produto é um arquivo só: **`Plano Cadete CBMPR.html`**. Ele é gerado a partir de `src/`.
+
+## Estrutura
+
+| Arquivo | O que tem |
+| --- | --- |
+| `src/00_page.html` | Título, estilos (tema claro e escuro, fonte Inter, animações) e a estrutura da página |
+| `src/10_dados.js` | Edital, fontes oficiais, bancos de jogos, geradores de cálculo, Teste 80/20 |
+| `src/20_resumos.js` | Resumos essenciais de todos os tópicos |
+| `src/21_flashcards.js` | Baralhos dos tópicos de Direito, Bombeiro, Inglês e Geografia |
+| `src/22_teste80.js` | Teste 80/20 de Primeiros Socorros, Combate a Incêndio e Direito |
+| `src/23_arena_base.js` | Arena de jogos: tipos de rodada, alternativas numéricas, figuras em SVG |
+| `src/24_arena_port.js` a `src/28_arena_hist.js` | Um jogo por tópico de Português, Matemática, Física, Química e História, cada um com 5 níveis gerados na hora |
+| `src/29_arena_motor.js` | Motor da Arena: partidas, estrelas, liberação de níveis, Contra o relógio, Nivelamento, rodada com IA e as telas |
+| `src/30_nucleo.js` | Estado, migração de versões antigas, domínio, XP, nível, sequência |
+| `src/31_missoes_sync.js` | Missões do dia, conquistas e sincronização na conta (com mesclagem) |
+| `src/32_som_efeitos.js` | Sons (tocados no instante do toque), ondulação dos botões, vibração, confete e celebrações |
+| `src/33_ia.js` | Tudo que usa o Claude: questões, simulado, Instrutor, aulas, correção de redação |
+| `src/34_tela_hoje.js` | Tela Hoje e cronômetro de foco |
+| `src/35_tela_treino.js` | Jogos, Relâmpago, Chefão, flashcards, simulado, Teste 80/20 |
+| `src/36_telas_painel_erros_redacao.js` | Painel, Caderno de erros, Redação e folhas |
+| `src/37_acoes_inicio.js` | Ações dos botões, teclado, renderização |
+| `src/38_jornada_mapa.js` | Mapa do Paraná da Jornada (regiões, rios, relevo, cidades, caminhos), gerado por `tools/mapa_parana.py` |
+| `src/39_jornada_historia.js` | Roteiro da Jornada do Paraná: 13 capítulos em ordem cronológica, com cenas, perguntas, resumos, datas e personagens |
+| `src/40_jornada_motor.js` | Motor e telas da Jornada: mapa animado por cena, perguntas, revisão, progresso salvo, atlas, linha do tempo e narração |
+| `src/90_inicio.js` | Inicialização (roda depois de todos os módulos) |
+
+## Gerar o arquivo
+
+```sh
+./build.sh
+```
+
+Para publicar no Claude, o artifact precisa das capacidades `db`, `user` e `sample` (e `downloads`, para o backup em arquivo).
+
+## Testes
+
+Os testes abrem o app num Chromium sem interface, com um Claude simulado, e passam por todos os fluxos: jogos, flashcards, simulado, IA, sincronização entre aparelhos e atualização a partir da versão antiga.
+
+```sh
+npm i -g playwright   # uma vez
+sh tests/run_all.sh
+```
+
+A Arena tem dois testes próprios: `node tests/arena_fuzz.js` gera 120 rodadas de cada nível de cada jogo e valida a estrutura; `node tests/arena_e2e.js` joga partidas completas clicando em todos os tipos de rodada.
