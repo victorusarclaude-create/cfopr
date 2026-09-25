@@ -154,7 +154,14 @@ function viewArenaHome(){
   if(sid==='hist') h+=jnFeatureCard();
   h+='<div class="arsum s-'+sid+'"><div><b>'+lvDone+'<small>/'+(gs.length*5)+'</small></b><span>níveis concluídos</span></div><div><b>'+st+'<small>/'+(gs.length*15)+'</small></b><span>estrelas</span></div><div><b>'+gs.length+'</b><span>jogos, um por tópico</span></div></div>';
   if(rec) h+='<button class="arrec" data-a="arPlay" data-g="'+rec.id+'" data-l="'+arUnl(rec.id)+'"><span class="small">Recomendado agora</span><b>'+esc(rec.nome)+' · nível '+arUnl(rec.id)+'</b><span class="small">Mais peso na prova e menos domínio seu.</span><span class="btn primary sm">Jogar</span></button>';
-  h+='<div class="aglist">'+gs.map(arCard).join('')+'</div>';
+  if(sid==='port'){
+    h+='<button class="btn ghost block" data-a="portPegaSheet" style="margin:12px 0">'+ICO.q+' Biblioteca de pegadinhas · '+PORT_PEGA.length+' armadilhas com truque</button>';
+    ['dura','lex','lei'].forEach(k=>{
+      const meta=PORT_TRILHAS[k], items=gs.filter(g=>PORT_TRILHA[g.t]).filter(g=>PORT_TRILHA[g.t].tr===k).sort((a,b)=>PORT_TRILHA[a.t].o-PORT_TRILHA[b.t].o);
+      if(!items.length) return;
+      h+='<h2>'+esc(meta.n)+'</h2><p class="small muted" style="margin-top:-8px">'+esc(meta.d)+'</p><div class="aglist">'+items.map(arCard).join('')+'</div>';
+    });
+  } else h+='<div class="aglist">'+gs.map(arCard).join('')+'</div>';
   h+='<div class="row modes" style="margin-top:14px"><button class="btn sm" data-a="relOpenS" data-s="'+sid+'">'+ICO.bolt+' Relâmpago da matéria</button><button class="btn sm" data-a="bossOpen" data-s="'+sid+'">'+ICO.crown+' Chefão da matéria</button></div>';
   return h;
 }
@@ -314,7 +321,8 @@ const ARENA_A={
   arMap:b=>{ const G=arCur(); if(!G||G.ans) return; const r=G.rounds[G.pos], z=b.dataset.z; G.pick=z; arResolve(G,r,z===r.zone); },
   arPT:b=>{ const G=arCur(); if(!G||G.ans) return; const r=G.rounds[G.pos], s=b.dataset.s; G.pick=s; arResolve(G,r,s===r.sym); },
   arBal:b=>{ const G=arCur(); if(!G||G.ans) return; const r=G.rounds[G.pos], rs=arRS(G); rs.co=rs.co||r.co.map(()=>1); const i=+b.dataset.i; rs.co[i]=clamp(rs.co[i]+(+b.dataset.d),1,15); SND.tap(); render(); },
-  arBalOk:()=>{ const G=arCur(); if(!G||G.ans) return; const r=G.rounds[G.pos], rs=arRS(G), co=rs.co||r.co.map(()=>1); const ok=co.every((v,i)=>v===r.co[i]); arResolve(G,r,ok,ok?1:co.filter((v,i)=>v===r.co[i]).length/co.length*0.5); }
+  arBalOk:()=>{ const G=arCur(); if(!G||G.ans) return; const r=G.rounds[G.pos], rs=arRS(G), co=rs.co||r.co.map(()=>1); const ok=co.every((v,i)=>v===r.co[i]); arResolve(G,r,ok,ok?1:co.filter((v,i)=>v===r.co[i]).length/co.length*0.5); },
+  portPegaSheet:()=>sheetPortPega()
 };
 const ARENA_NOUNDO=Object.keys(ARENA_A);
 /* teclado nas partidas da Arena */

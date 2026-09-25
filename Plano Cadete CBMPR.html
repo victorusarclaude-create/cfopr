@@ -2924,6 +2924,9 @@ function arOdd(q,trues,falses,askFalse,o){
   const right=askFalse?rP(falses):rP(trues), others=askFalse?rN(trues,4):rN(falses,4);
   return arCh(q,right,others,Object.assign({n:5},o||{}));
 }
+/* pergunta de classificação a partir de um banco [situação, resposta, distratores?, explicação?];
+   sem distratores explícitos, usa as outras respostas do próprio banco como opções erradas */
+const cq=(bank,q)=>()=>{ const it=rP(bank); return arCh((q?q+'\n':'')+it[0],it[1],it[2]?it[2].split('|'):[...new Set(bank.map(x=>x[1]))].filter(x=>x!==it[1]),{x:it[3]||it[1]}); };
 
 /* ---------- itens de lacuna (Português e História) ----------
    {s:'Fui {} farmácia.', c:'à', w:['a'], x:'regra'} */
@@ -3437,6 +3440,56 @@ arGame({id:'ar-port-int',s:'port',t:'port-int',nome:'Leitor de elite',ic:'“ �
   {d:'Inferência: o que se conclui, sem estar escrito.',g:[()=>{ const t=rP(TEXTOS); return arCh(itTxt(t)+'\n\nPode-se **inferir** do texto que:',rP(t.inf),t.no,{x:'É uma conclusão apoiada no texto. As outras extrapolam.'}); }]},
   {d:'Assinale a INCORRETA; o que não se pode afirmar.',g:[()=>{ const t=rP(TEXTOS); return arCh(itTxt(t)+'\n\nDe acordo com o texto, é **incorreto** afirmar que:',rP(t.no),t.af.concat(t.inf),{x:'Essa afirmação não se sustenta no texto.'}); }]},
   {d:'Classifique: escrito, inferível ou extrapolação.',g:[()=>{ const t=rP(TEXTOS); const it=rN(t.af,2).map(s=>[s,0]).concat(rN(t.inf,1).map(s=>[s,1]),rN(t.no,2).map(s=>[s,2])); return arSort(itTxt(t)+'\n\nClassifique cada afirmação:',['Está no texto','Pode-se inferir','Não se pode afirmar'],rS(it),{x:'Explícito: está escrito. Inferência: conclusão apoiada no texto. Extrapolação: vai além do que o texto permite.'}); }]}]});
+/* ===================== ARENA: PORTUGUÊS, PARTE 2 =====================
+   Duas peças novas contra o "gramática vira uma pilha de regras soltas":
+   1) PORT_TRILHA/PORT_TRILHAS agrupam os 11 jogos em 3 trilhas com ordem sugerida
+      (usado por viewArenaHome, em 29_arena_motor.js), em vez de uma lista só.
+   2) PORT_PEGA é o banco único da Biblioteca de pegadinhas (sheetPortPega) e também
+      alimenta o jogo "Caça-pegadinha": a mesma pegadinha vira card de estudo e vira
+      pergunta de classificar, com o truque para lembrar em ambos os lugares. */
+const PORT_TRILHA={
+  'port-ort':{tr:'dura',o:1},'port-conc':{tr:'dura',o:2},'port-reg':{tr:'dura',o:3},'port-col':{tr:'dura',o:4},'port-pont':{tr:'dura',o:5},'port-pega':{tr:'dura',o:6},
+  'port-cla':{tr:'lex',o:1},'port-sem':{tr:'lex',o:2},
+  'port-sint':{tr:'lei',o:1},'port-coe':{tr:'lei',o:2},'port-gen':{tr:'lei',o:3},'port-int':{tr:'lei',o:4}
+};
+const PORT_TRILHAS={
+  dura:{n:'Regra dura',d:'Regras fixas, cheias de pegadinha: é onde a banca mais testa decoreba disfarçada de lógica. Comece por aqui.'},
+  lex:{n:'Léxico e forma',d:'Reconhecer a classe e o sentido exato das palavras — a base para entender qualquer frase.'},
+  lei:{n:'Leitura e texto',d:'Como o texto se organiza e o que ele realmente diz. É onde tudo o que veio antes se junta.'}
+};
+const PORT_PEGA=[
+ {n:'Crase antes de masculino',nv:1,pega:'Não existe crase antes de palavra masculina.',ex:['Fui a pé até o quartel.','Ela dirige a cavalo nos treinos.'],truque:'Troque a palavra por uma masculina: se virar "ao", tem crase; se virar só "o", não tem.'},
+ {n:'Crase antes de verbo',nv:1,pega:'Verbo nunca recebe artigo, então nunca vem com crase antes dele.',ex:['Ele começou a correr assim que ouviu o alarme.','Recusou-se a falar com a imprensa.'],truque:'Verbo não tem gênero — sem crase, sempre.'},
+ {n:'"A gente" no singular',nv:1,pega:'"A gente" (= nós) concorda sempre no singular.',ex:['A gente foi ao plantão ontem.','A gente já treinou esse procedimento.'],truque:'"A gente" é uma pessoa (o pronome) — o verbo trata como "ele", sempre singular.'},
+ {n:'Verbo impessoal no singular',nv:1,pega:'Haver (existir) e fazer (tempo) não têm sujeito, então ficam sempre no singular.',ex:['Há muitos candidatos inscritos este ano.','Faz dois anos que ele passou no concurso.'],truque:'Existir e tempo não têm "dono" — o verbo nunca vai pro plural.'},
+ {n:'Regência de "assistir"',nv:2,pega:'"Assistir" no sentido de ver pede a preposição "a".',ex:['Os recrutas assistiram ao treinamento.','Ninguém assistiu à cena do resgate.'],truque:'Assistir A alguma coisa: você fica a distância, olhando de fora.'},
+ {n:'Regência de "chegar"/"ir"',nv:2,pega:'"Chegar" e "ir" pedem a preposição "a", nunca "em".',ex:['A viatura chegou ao local em cinco minutos.','Eles foram à base assim que foram chamados.'],truque:'Quem chega ou vai, chega/vai A um lugar — nunca "em", na norma culta.'},
+ {n:'Regência de "namorar"',nv:2,pega:'"Namorar" é transitivo direto: usa-se sem preposição.',ex:['Ele namora a colega de turma.','Os soldados obedeceram ao comando.'],truque:'"Namorar" já abraça o complemento sozinho — não precisa de "com" no meio.'},
+ {n:'"Onde" × "em que"',nv:2,pega:'"Onde" só serve para lugar físico; nos outros casos, usa-se "em que" ou "no qual".',ex:['Essa é a cidade onde ele nasceu.','Essa é a situação em que ele se meteu.'],truque:'Se não dá pra responder "lá" (num lugar), a resposta é "em que", nunca "onde".'},
+ {n:'Próclise com negativa',nv:3,pega:'Palavra negativa antes do verbo puxa o pronome para antes dele.',ex:['Não se esqueça do capacete.','Nunca me atrasei para o plantão.'],truque:'Palavra de negação puxa o pronome para antes do verbo — nunca depois.'},
+ {n:'Próclise com relativo/indefinido',nv:3,pega:'Pronome relativo ou indefinido antes do verbo também exige próclise.',ex:['Os documentos que se perderam foram recuperados.','Alguém me avisou sobre a mudança de horário.'],truque:'Quem "aponta" para algo ou alguém (relativo, indefinido) também puxa o pronome para antes.'},
+ {n:'Ênclise no início de frase',nv:3,pega:'Não se inicia frase, na escrita formal, com pronome oblíquo átono: usa-se ênclise.',ex:['Chamaram-me às pressas.','Avisaram-nos sobre a mudança.'],truque:'Frase não começa com pronome "pequeno" (me, se, o, lhe) na escrita formal.'},
+ {n:'Mesóclise no futuro',nv:3,pega:'Mesóclise só existe nos tempos futuros, e só quando nada antes do verbo atrai o pronome.',ex:['Dar-se-á o resultado amanhã.','Encontrar-nos-emos no quartel.'],truque:'Mesóclise mora dentro do verbo — só aparece nos futuros, sem nada "chamando" o pronome antes.'},
+ {n:'Vírgula não separa sujeito e verbo',nv:4,pega:'Uma vírgula sozinha nunca separa o sujeito do verbo.',ex:['O comandante da unidade chegou atrasado.','O comandante, visivelmente cansado, chegou atrasado.'],truque:'Sujeito e verbo são um casal — vírgula sozinha nunca entra entre os dois (só em par, isolando um aposto).'},
+ {n:'Vocativo sempre entre vírgulas',nv:4,pega:'O vocativo é isolado por vírgula(s) em qualquer posição da frase.',ex:['Soldado, apresente-se ao comandante.','Apresente-se ao comandante, soldado.'],truque:'Vocativo é quem você chama — sempre cercado de vírgula, não importa onde ele more na frase.'},
+ {n:'Aposto explicativo × especificativo',nv:4,pega:'O aposto explicativo vem entre vírgulas; o especificativo, sem vírgula.',ex:['Curitiba, capital do Paraná, tem clima frio.','O poeta Drummond nasceu em Minas Gerais.'],truque:'Se a informação é um "extra" que dá pra tirar sem perder o sentido, tem vírgula; se faz parte do nome, não tem.'},
+ {n:'Oração deslocada pede vírgula',nv:4,pega:'Oração adverbial que vai para o início do período é seguida de vírgula.',ex:['Quando o sinal tocar, todos devem sair em fila.','Todos devem sair em fila quando o sinal tocar.'],truque:'Oração que furou a fila e foi para o início do período sempre avisa com uma vírgula.'},
+ {n:'Sujeito composto posposto',nv:5,pega:'Verbo antes de sujeito composto pode concordar no singular (com o mais próximo) ou no plural (com o todo) — as duas formas são aceitas.',ex:['Chegou o comandante e os soldados.','Chegaram o comandante e os soldados.'],truque:'Verbo antes do sujeito composto tem duas respostas certas: só o vizinho mais perto, ou todo mundo junto.'},
+ {n:'Concordância com "a maioria de"',nv:5,pega:'Expressões partitivas ("a maioria de", "grande parte de") podem concordar com a ideia (plural) ou com a forma (singular).',ex:['A maioria dos candidatos passou na prova.','A maioria dos candidatos passaram na prova.'],truque:'Quando a expressão é "um monte de gente", o verbo pode concordar com o monte (singular) ou com a gente (plural).'},
+ {n:'Os quatro porquês',nv:5,pega:'Porque (junto, resposta/causa), por que (separado, pergunta), por quê (separado e acentuado, sozinho no fim), porquê (substantivo, com "o" antes).',ex:['Ele faltou porque estava doente.','Por que ele faltou?'],truque:'Pergunta = separado. Resposta = junto. Sozinho no fim = com acento. Com "o" na frente = é substantivo.'},
+ {n:'"Onde" × "aonde"',nv:5,pega:'"Aonde" (com A) só se usa com verbos de movimento; "onde" indica permanência.',ex:['Onde você está?','Aonde você vai?'],truque:'Tem movimento (ir, chegar)? Junte o "a" antes do "onde". Tem permanência (estar, morar)? Só "onde".'}
+];
+function sheetPortPega(){
+  const groups=[1,2,3,4,5].map(nv=>({nv,items:PORT_PEGA.filter(p=>p.nv===nv)}));
+  let h='<h2 id="sheetTitle">Biblioteca de pegadinhas</h2><p class="small muted">'+PORT_PEGA.length+' armadilhas que mais derrubam candidato, com o truque para nunca mais cair. Jogue o Caça-pegadinha, na trilha Regra dura, para treinar.</p>';
+  groups.forEach(g=>{ h+='<h3>Nível '+g.nv+'</h3>'+g.items.map(p=>'<div class="jngitem"><b>'+esc(p.n)+'</b><p>'+esc(p.pega)+'</p><p><b>Truque:</b> '+esc(p.truque)+'</p></div>').join(''); });
+  openSheet(h,{key:'portPega'});
+}
+const PORT_PEGA_D=['Crase, verbo impessoal e "a gente": as pegadinhas mais óbvias.','Regência: a preposição certa depois do verbo.','Colocação pronominal: próclise, ênclise e mesóclise.','Pontuação: vírgula em sujeito, vocativo, aposto e oração deslocada.','As pegadinhas mais finas: concordância dupla e os quatro porquês.'];
+arGame({id:'ar-port-pega',s:'port',t:'port-pega',nome:'Caça-pegadinha',ic:'⚠',desc:'As armadilhas que mais derrubam candidato, agrupadas pelo tipo de pegadinha, não pelo tópico — com o truque para nunca mais cair nelas.',lv:[1,2,3,4,5].map((nv,i)=>{
+  const bank=PORT_PEGA.filter(p=>p.nv===nv).flatMap(p=>p.ex.map(e=>[e,p.n,null,p.pega+' Truque: '+p.truque]));
+  return {d:PORT_PEGA_D[i],g:[cq(bank,'Qual é a pegadinha nesta frase?')]};
+})});
 
 /* ===================== ARENA: MATEMÁTICA =====================
    Tudo gerado: números novos a cada rodada, com os erros típicos como alternativas
@@ -3592,12 +3645,88 @@ mg('ar-mat-calc','mat-calc','Limites e derivadas','dy/dx','Limites por substitui
  {d:'Derivada de polinômio.',g:[()=>{ const a=rI(2,6), n=rI(2,4), k=rI(1,3); return arNum('Se f(x) = '+a+'x'+sq(n)+', quanto vale f′('+k+')?',n*a*Math.pow(k,n-1),{d:0,c:[a*Math.pow(k,n),n*a,n*a*Math.pow(k,n)],steps:['f′(x) = '+(n*a)+'x'+(n-1>1?sq(n-1):''),'f′('+k+') = '+(n*a*Math.pow(k,n-1))]}); },()=>{ const a=rI(1,4), b=rI(-5,5), c=rI(-5,5); return arCh('Derivada de f(x) = '+fPoly([a,b,c],'x')+'?','f′(x) = '+fPoly([2*a,b],'x'),['f′(x) = '+fPoly([a,b],'x'),'f′(x) = '+fPoly([2*a,b,c],'x'),'f′(x) = '+fPoly([2*a,0],'x')],{x:'Regra da potência termo a termo; a constante some.'}); }]},
  {d:'Reta tangente e regras de derivação.',g:[()=>{ const a=rI(1,3), k=rI(-2,3); return arNum('Coeficiente angular da reta tangente a y = '+a+'x² no ponto de abscissa '+fI(k)+'?',2*a*k,{d:0,neg:true,c:[a*k*k,a*k,2*k]}); },()=>{ const a=rI(2,5), b=rI(1,4); return arCh('Derivada de f(x) = ('+a+'x + '+b+')²?','f′(x) = '+(2*a)+'('+a+'x + '+b+')',['f′(x) = 2('+a+'x + '+b+')','f′(x) = '+a+'('+a+'x + '+b+')','f′(x) = ('+(2*a)+'x)²'],{x:'Regra da cadeia: 2(u)·u′, com u′ = '+a+'.'}); }]},
  {d:'Máximos e mínimos; integral simples.',g:[()=>{ const h=rI(-3,4), k=rI(-5,5); return arNum('A função f(x) = x² '+(h?(-2*h<0?'− '+(2*h):'+ '+(-2*h))+'x':'')+' + '+(h*h+k)+' tem mínimo em qual x?',h,{d:0,neg:true,c:[-h,k,2*h]}); },()=>{ const a=rI(1,3), b=rI(1,4); return arNum('Calcule a integral de '+(2*a)+'x de 0 a '+b+'.',a*b*b,{d:0,c:[2*a*b,a*b,2*a*b*b],steps:['Primitiva: '+a+'x²','De 0 a '+b+': '+a+' × '+(b*b)+' = '+(a*b*b)]}); }]}]);
+/* ===================== ARENA: MATEMÁTICA, PARTE 2 =====================
+   Mesma ideia da Física: dois jogos que treinam reconhecer qual ferramenta usar,
+   sem pedir nenhuma conta, e discriminar pares de problemas que parecem gêmeos
+   mas pedem fórmulas diferentes. Ver a nota no topo de 26b_arena_fis2.js. */
+const MAT_RADAR=[
+[['Você quer descobrir o valor de x numa equação com uma incógnita.','Álgebra (equações)'],
+ ['Você quer calcular a área de um terreno retangular.','Geometria plana'],
+ ['Você quer saber a média das notas de uma turma.','Estatística'],
+ ['Você quer saber a chance de tirar um número par jogando um dado.','Probabilidade'],
+ ['Você quer saber quantos metros de cerca fecham um terreno retangular.','Geometria plana (perímetro)'],
+ ['Você quer o próximo termo de uma sequência que sempre soma o mesmo valor ao anterior.','Progressões (PA)'],
+ ['Você quer resolver um sistema com duas equações e duas incógnitas.','Álgebra (equações)'],
+ ['Você quer saber de quantas formas 3 pessoas podem sentar em 3 cadeiras.','Contagem (permutação)']],
+[['Se 4 pedreiros constroem um muro em 10 dias, em quantos dias 8 pedreiros constroem o mesmo muro?','Regra de três (inversa)'],
+ ['Se 3 kg de um produto custam R$ 30, quanto custam 5 kg do mesmo produto?','Regra de três (direta)'],
+ ['Um produto que custava R$ 200 teve desconto de 15%; você quer o preço final.','Porcentagem'],
+ ['Você aplicou um valor a juros simples e quer o total depois de alguns meses.','Juros simples'],
+ ['Você aplicou o mesmo valor a juros compostos e quer o total depois do mesmo tempo.','Juros compostos'],
+ ['Uma receita rende 4 porções com certos ingredientes; você quer os ingredientes para 10 porções.','Regra de três (direta)'],
+ ['Quanto mais torneiras iguais abertas ao mesmo tempo, menos tempo para encher um tanque: você quer esse tempo.','Regra de três (inversa)']],
+[['Uma sequência começa em 3 e cada termo soma sempre 5 ao anterior.','Progressão aritmética (PA)'],
+ ['Uma sequência começa em 3 e cada termo é sempre o dobro do anterior.','Progressão geométrica (PG)'],
+ ['Você quer de quantas formas pode escolher uma comissão de 3 pessoas entre 8, sem se importar com a ordem.','Combinação'],
+ ['Você quer de quantas formas pode formar um pódio (1º, 2º, 3º) com 8 atletas.','Arranjo (a ordem importa)'],
+ ['Você quer a chance de dois eventos acontecerem juntos, sendo eles independentes.','Probabilidade (eventos independentes)'],
+ ['Você tem uma lista de valores e quer o que aparece com mais frequência.','Estatística (moda)'],
+ ['Você tem uma lista de valores e quer o valor "do meio", depois de ordenar todos.','Estatística (mediana)']],
+[['O valor de uma corrida de táxi cresce sempre na mesma proporção por quilômetro rodado.','Função afim (linear)'],
+ ['A altura de uma bola lançada para cima cresce e depois decresce, formando uma curva.','Função quadrática'],
+ ['Você quer a distância em linha reta entre dois pontos no plano cartesiano.','Geometria analítica (distância entre pontos)'],
+ ['Você quer o ponto exatamente no meio de um segmento entre dois pontos.','Geometria analítica (ponto médio)'],
+ ['Você quer saber quantos litros de água cabem numa caixa d’água em formato de cilindro.','Geometria espacial (volume)'],
+ ['Você quer saber quanto material reveste todas as faces de uma caixa de sapato.','Geometria espacial (área de superfície)'],
+ ['Você quer os valores de x que zeram uma equação do 2º grau.','Função quadrática (raízes)']],
+[['Você quer a chance de tirar uma carta de copas, sabendo que já saiu uma carta vermelha.','Probabilidade condicional'],
+ ['Você quer a chance de dois dados, jogados juntos, darem soma 7.','Probabilidade (eventos independentes)'],
+ ['Uma quantia cresce sempre multiplicada pelo mesmo fator a cada período, como juros compostos.','Progressão geométrica (PG)'],
+ ['Você quer resolver um sistema com três equações usando uma tabela de números em linhas e colunas.','Matrizes'],
+ ['Você quer a razão entre dois lados de um triângulo retângulo, conhecendo um ângulo.','Trigonometria'],
+ ['Você quer a taxa de variação instantânea de uma função num ponto exato.','Derivadas'],
+ ['Você quer saber para qual valor uma função se aproxima quando x cresce sem parar.','Limites']]
+];
+const MAT_RADAR_D=['Áreas bem diferentes: álgebra, geometria, estatística ou probabilidade?','Proporção: regra de três direta ou inversa, porcentagem ou juros?','PA × PG, permutação × combinação, média × mediana × moda.','Função afim × quadrática, e as três de geometria analítica/espacial.','As mais sutis: condicional × independente, PG × exponencial, limite × derivada.'];
+arGame({id:'ar-mat-radar',s:'mat',t:'mat-radar',nome:'Raio-X do problema',ic:'?',desc:'Sem fazer nenhuma conta: qual ferramenta resolve essa situação? O passo que trava mais gente na prova, treinado sozinho.',
+ lv:MAT_RADAR.map((bank,i)=>({d:MAT_RADAR_D[i],g:[cq(bank,'Qual ferramenta resolve essa situação?')]}))});
+
+const twinM=(a,b,q,right,x)=>()=>arCh('A: '+a+'\nB: '+b+'\n'+q,right,['Só em A','Só em B','Nas duas','Em nenhuma das duas'].filter(o=>o!==right),{x});
+const MAT_GEMEO=[
+[twinM('3 pedreiros fazem um muro em 12 dias.','3 máquinas produzem 90 peças em 2 horas.','Em qual delas aumentar o número de "trabalhadores" diminui o tempo (regra de três inversa)?','Só em A','Em A, mais pedreiro termina mais rápido: inversa. Em B, mais máquina no mesmo tempo produz mais peças: direta, o tempo nem muda.'),
+ twinM('Uma sequência: 2, 5, 8, 11, ...','Uma sequência: 2, 6, 18, 54, ...','Em qual delas a diferença entre termos vizinhos é sempre a mesma?','Só em A','Em A soma-se sempre 3 (PA). Em B multiplica-se sempre por 3 (PG).'),
+ twinM('Comissão de 3 pessoas escolhida entre 6, sem função definida para cada uma.','Escolha de presidente, vice e secretário entre 6 pessoas.','Em qual delas a ordem da escolha importa?','Só em B','Em A o grupo é o mesmo não importa a ordem (combinação). Em B cada cargo é diferente: ordem importa (arranjo).'),
+ twinM('Você quer somar os termos de 1 a 10 de uma sequência que cresce sempre a mesma quantidade.','Você quer somar os termos de 1 a 10 de uma sequência que sempre dobra.','Em qual delas a soma cresce muito mais rápido conforme aumentam os termos?','Só em B','Uma PG que dobra cresce exponencialmente; uma PA que soma sempre o mesmo valor cresce de forma bem mais lenta (linear).'),
+ twinM('Você quer saber quantos números pares existem de 1 a 100.','Você quer saber a chance de um número sorteado de 1 a 100 ser par.','Em qual delas o resultado é uma fração entre 0 e 1?','Só em B','A é uma contagem simples (um número inteiro); B é uma probabilidade, sempre entre 0 e 1.')],
+[twinM('R$1.000 aplicados a 5% ao mês, por 3 meses, com juros simples.','R$1.000 aplicados a 5% ao mês, por 3 meses, com juros compostos.','Em qual delas o rendimento de cada mês incide sempre sobre o valor original?','Só em A','Juros simples sempre incide sobre o capital inicial; juros compostos incide também sobre o que já rendeu.'),
+ twinM('Uma função y = 3x + 2.','Uma função y = x² + 2.','Em qual delas dobrar o valor de x sempre dobra exatamente o crescimento de y?','Só em A','Função afim cresce sempre na mesma proporção; a quadrática cresce cada vez mais rápido.'),
+ twinM('Área de um retângulo de 8 m por 5 m.','Perímetro do mesmo retângulo.','Em qual delas o cálculo é multiplicar os lados?','Só em A','Área multiplica base por altura; perímetro soma todos os lados.'),
+ twinM('Um carro percorre distâncias iguais a cada hora (velocidade constante).','Uma bactéria dobra de quantidade a cada hora.','Em qual delas o crescimento pode ser descrito por uma função afim (reta)?','Só em A','Distância constante por tempo é proporção direta simples (reta). Dobrar sempre é crescimento exponencial (PG), não é reta.'),
+ twinM('Uma loja dá 20% de desconto sobre o preço original de um produto.','Uma loja aumenta o preço em 20% e depois dá 20% de desconto sobre o novo preço.','Em qual delas o preço final volta a ser igual ao original?','Em nenhuma das duas','Em B, aumentar 20% e depois descontar 20% não volta ao valor original, porque o desconto incide sobre um valor já maior — um erro clássico de porcentagem.')],
+[twinM('Sorteio de uma bola numa urna com 5 vermelhas e 5 azuis: qual a chance de ser vermelha?','Sorteio de duas bolas seguidas, sem repor a primeira: qual a chance da segunda ser vermelha, sabendo que a primeira foi vermelha?','Em qual delas o resultado do primeiro sorteio muda a chance do segundo?','Só em B','Em B é probabilidade condicional (sem reposição): a primeira retirada muda o total de bolas restantes.'),
+ twinM('Volume de uma caixa (paralelepípedo) de 2 m × 3 m × 4 m.','Área total das faces da mesma caixa.','Em qual delas o resultado mede o que cabe dentro da caixa?','Só em A','Volume mede a capacidade (o que cabe dentro); área de superfície mede quanto material cobre as faces por fora.'),
+ twinM('Um triângulo retângulo, ângulo de 30°, hipotenusa conhecida: você quer um cateto.','Um triângulo qualquer, sem ângulo reto, dois lados e o ângulo entre eles conhecidos: você quer o terceiro lado.','Em qual delas dá para usar seno e cosseno direto, sem lei dos cossenos?','Só em A','Só o triângulo retângulo permite seno/cosseno direto; o outro caso pede a lei dos cossenos.'),
+ twinM('Você quer saber quantos anagramas diferentes tem a palavra "AMOR" (4 letras diferentes).','Você quer saber quantos anagramas diferentes tem a palavra "ANA" (com letras repetidas).','Em qual delas você precisa dividir pela repetição de letras na fórmula?','Só em B','Com letras repetidas, a permutação simples conta anagramas iguais mais de uma vez — por isso se divide pelo fatorial das repetições.'),
+ twinM('Você quer a média de um conjunto de notas, todas com o mesmo peso.','Você quer a média de um conjunto de notas em que a prova final vale o dobro das outras.','Em qual delas você usa média ponderada?','Só em B','Pesos diferentes por item pedem média ponderada; pesos iguais é a média aritmética simples.')],
+[twinM('Uma matriz 2×2 representando um sistema de duas equações.','Uma tabela com as notas de 5 alunos em 3 provas.','Nas duas os números estão organizados em linhas e colunas?','Nas duas','Matriz é, literalmente, uma tabela de números — qualquer tabela organizada assim vira uma matriz.'),
+ twinM('A altura de uma bola lançada para cima, com o tempo, forma uma parábola.','O preço de uma corrida de aplicativo cresce direto proporcional aos quilômetros rodados.','Em qual delas o gráfico é uma reta?','Só em B','Função afim (preço por km) é sempre reta; função quadrática (altura no tempo) é sempre parábola.'),
+ twinM('Você quer saber para que valor uma função se aproxima quando x fica gigante.','Você quer a inclinação exata da curva de uma função num ponto específico.','Em qual delas você usa derivada?','Só em B','Aproximar-se de um valor é limite; a inclinação exata num ponto é derivada.'),
+ twinM('Você quer a distância percorrida por um carro que anda a 80 km/h por 3 horas.','Você quer a área sob o gráfico de velocidade × tempo de um carro que acelera.','Nas duas o resultado representa a mesma grandeza física (uma distância)?','Nas duas','Em qualquer gráfico v×t, a área sob a curva é sempre a distância percorrida — com velocidade constante (retângulo) ou variável (outra forma).'),
+ twinM('Você quer resolver a equação x² − 5x + 6 = 0.','Você quer encontrar onde a parábola y = x² − 5x + 6 cruza o eixo x.','As duas perguntas têm exatamente a mesma resposta?','Nas duas','As raízes da equação são, por definição, os pontos onde a parábola da função cruza o eixo x — a mesma conta vista de dois jeitos.')],
+[twinM('Uma população de bactérias dobra a cada hora.','Uma conta de água aumenta sempre no mesmo valor fixo todo mês.','Em qual delas o crescimento é uma progressão geométrica?','Só em A','Dobrar sempre é multiplicar pelo mesmo fator: PG. Aumentar sempre o mesmo valor fixo é PA.'),
+ twinM('Jogar uma moeda e um dado ao mesmo tempo: qual a chance de dar cara e o número 6?','Tirar duas cartas de um baralho, uma após a outra, sem devolver a primeira.','Em qual delas os eventos são independentes?','Só em A','Moeda e dado não têm nenhuma relação entre si. Cartas sem reposição mudam as chances uma da outra.'),
+ twinM('log₂(8) = 3.','2³ = 8.','As duas expressam a mesma relação entre os números 2, 3 e 8, só de jeitos diferentes?','Nas duas','Logaritmo e potência são operações inversas: contam a mesma história por lados opostos.'),
+ twinM('Você quer saber quantas comissões de 2 pessoas dá pra formar com 4 amigos.','Você quer saber de quantas formas 2 prêmios diferentes (ouro e prata) podem ser dados a 4 amigos.','Em qual delas a diferença entre os cargos/prêmios importa?','Só em B','Comissão sem função definida é combinação; prêmios diferentes (ouro ≠ prata) tornam a ordem importante — é arranjo.'),
+ twinM('Você quer o determinante de uma matriz 2×2 para saber se um sistema linear tem solução única.','Você quer somar duas matrizes 2×2, elemento por elemento.','Em qual delas o resultado final é um único número?','Só em A','O determinante é sempre um número; a soma de matrizes ainda é uma matriz.')]
+];
+const MAT_GEMEO_D=['Regra de três, PA×PG e arranjo×combinação: o par mais direto.','Juros, função e área×perímetro: o que muda de fato entre os dois.','Probabilidade condicional, volume×área e trigonometria.','Matriz, função afim×quadrática e limite×derivada.','As mais avançadas: PG×PA, eventos independentes e log×potência.'];
+arGame({id:'ar-mat-gemeo',s:'mat',t:'mat-gemeo',nome:'Pegadinha gêmea',ic:'A≟B',desc:'Duas situações quase idênticas na casca: só uma (ou nenhuma, ou as duas) aceita a mesma fórmula. Treina exatamente a discriminação que falha na prova.',
+ lv:MAT_GEMEO.map((g,i)=>({d:MAT_GEMEO_D[i],g}))});
 
 /* ===================== ARENA: FÍSICA =====================
    Situações de bombeiro com números novos a cada rodada, conceitos com distratores
    plausíveis e gráficos para ler. g = 10 m/s² em todo o jogo. */
 const fg=(id,t,nome,ic,desc,lv)=>arGame({id,s:'fis',t,nome,ic,desc,lv});
-const cq=(bank,q)=>()=>{ const it=rP(bank); return arCh((q?q+'\n':'')+it[0],it[1],it[2]?it[2].split('|'):[...new Set(bank.map(x=>x[1]))].filter(x=>x!==it[1]),{x:it[3]||it[1]}); };
 
 fg('ar-fis-unid','fis-unid','Unidades e ordens de grandeza','SI','Unidades do SI, conversões, prefixos, notação científica e análise dimensional.',[
  {d:'Grandeza e unidade no SI.',g:[cq([['Força','newton (N)'],['Energia','joule (J)'],['Potência','watt (W)'],['Pressão','pascal (Pa)'],['Carga elétrica','coulomb (C)'],['Corrente elétrica','ampère (A)'],['Resistência elétrica','ohm (Ω)'],['Tensão elétrica','volt (V)'],['Frequência','hertz (Hz)'],['Temperatura','kelvin (K)'],['Massa','quilograma (kg)'],['Quantidade de matéria','mol (mol)']],'Qual a unidade no SI de:')]},
@@ -3689,6 +3818,90 @@ fg('ar-fis-msolid','fis-msolid','Alavancas, polias e gravitação','⚖','Hooke,
  {d:'Equilíbrio da alavanca.',g:[()=>{ const P=rP([200,400,600,800]), d1=rP([0.5,1]), d2=rP([2,4]); return arNum('Uma barra de ferro levanta uma pedra de '+P+' N a '+fN(d1,1)+' m do apoio, com a força a '+d2+' m do outro lado. Força necessária?',P*d1/d2,{d:0,u:'N',c:[P*d2/d1,P,P/2]}); }]},
  {d:'Polias móveis (vantagem mecânica no resgate).',g:[()=>{ const P=rP([400,800,1200,1600]), n=rI(1,3); return arNum('Para içar uma vítima de '+P+' N com '+n+' polia(s) móvel(is), qual a força mínima?',P/Math.pow(2,n),{d:0,u:'N',c:[P/n,P,P/(2*n+1)]}); },cq([['Uma polia fixa','só muda a direção da força','divide a força por 2|multiplica a força|elimina o peso']])]},
  {d:'Gravitação e leis de Kepler.',g:[()=>{ const k=rP([2,3,4]), mode=rI(0,1); return mode?arCh('Se a distância entre dois corpos for multiplicada por '+k+', a força gravitacional fica multiplicada por:','1/'+(k*k),['1/'+k,String(k),String(k*k)],{x:'F = G·M·m/d²'}):arCh('Se a massa de um dos corpos for multiplicada por '+k+', a força gravitacional:','fica multiplicada por '+k,['fica dividida por '+k,'fica multiplicada por '+(k*k),'não se altera'],{x:'Proporcional às massas.'}); },cq([['As órbitas dos planetas são elipses, com o Sol num dos focos.','1ª lei de Kepler'],['O raio vetor varre áreas iguais em tempos iguais.','2ª lei de Kepler'],['T² é proporcional ao cubo do raio médio da órbita.','3ª lei de Kepler'],['O planeta é mais rápido quando está mais perto do Sol.','2ª lei de Kepler'],['Planetas mais distantes do Sol têm ano mais longo.','3ª lei de Kepler']],'Qual lei:'),()=>{ const m=rP([2,3,4]), r=rP([2,3,4]); return arCh('Um planeta tem '+m+' vezes a massa da Terra e '+r+' vezes o raio. A gravidade na superfície é quantas vezes a da Terra?',fFr(m,r*r),[fFr(m,r),fFr(m*r*r,1),fFr(r*r,m)],{x:'g = GM/R²: '+m+'/'+(r*r)+'.'}); },()=>{ const P=rP([600,700,800]), g=rP([1.6,3.7,24.8]); return arNum('Um astronauta com massa de '+(P/10)+' kg vai a um astro onde g = '+fN(g,1)+' m/s². Seu peso lá?',P/10*g,{d:0,u:'N',c:[P,P/10,P/g]}); }]}]);
+/* ===================== ARENA: FÍSICA, PARTE 2 =====================
+   "Decorei a fórmula mas não sei quando usar" é um problema conhecido: quem está
+   aprendendo indexa o problema pela casca (tem plano inclinado → decorei essa conta);
+   quem domina indexa pelo princípio por trás (isso é conservação de energia, não importa
+   se é bala, pêndulo ou montanha-russa). Os dois jogos abaixo treinam só essa etapa —
+   reconhecer a ferramenta certa — sem pedir nenhuma conta, para separar esse músculo do
+   de calcular. */
+const FIS_RADAR=[
+[['Um carro sai do zero e atinge 100 km/h em 10 segundos; você quer a aceleração dele.','Cinemática'],
+ ['Duas pessoas empurram uma caixa com forças diferentes; você quer a força resultante.','Dinâmica (leis de Newton)'],
+ ['Uma bola cai de um telhado, sem atrito, e você quer a velocidade dela ao chegar ao chão.','Energia (conservação de energia mecânica)'],
+ ['Você mistura água quente e água fria e quer a temperatura final da mistura.','Calor e temperatura'],
+ ['Você quer saber quanta corrente passa por um chuveiro elétrico ligado numa tomada.','Eletricidade (circuitos)'],
+ ['Um trem anda em linha reta a velocidade constante; você quer a posição dele depois de certo tempo.','Cinemática'],
+ ['Um bloco é puxado por uma força e você quer com que aceleração ele passa a se mover.','Dinâmica (leis de Newton)'],
+ ['Você aquece uma barra de metal e quer saber quanto ela vai se dilatar.','Calor e temperatura']],
+[['Um carro freia com aceleração constante até parar; você quer a distância percorrida na freada.','Cinemática (MUV)'],
+ ['Uma força constante empurra um bloco com atrito; você quer a aceleração resultante.','Dinâmica (2ª lei de Newton)'],
+ ['Um guindaste levanta uma carga a velocidade constante; você quer a potência do motor.','Energia (trabalho e potência)'],
+ ['Duas bolinhas de bilhar se chocam; você quer a velocidade de cada uma depois do choque.','Impulso e quantidade de movimento'],
+ ['Uma mola é comprimida e depois solta, lançando um objeto; você quer a velocidade de saída.','Energia (conservação, energia elástica)'],
+ ['Um foguete de brinquedo expulsa gás para trás; você quer a velocidade de recuo dele.','Impulso e quantidade de movimento'],
+ ['Um objeto desliza ladeira abaixo; você quer a aceleração dele no plano inclinado.','Dinâmica (leis de Newton)'],
+ ['Um corredor passa de 0 a 8 m/s em 4 segundos; você quer quanto ele acelerou.','Cinemática (MUV)']],
+[['Duas viaturas colidem e ficam grudadas; você quer a velocidade final do conjunto.','Impulso e quantidade de movimento'],
+ ['Uma bola desce um escorregador sem atrito; você quer a velocidade dela ao chegar embaixo.','Energia (conservação de energia mecânica)'],
+ ['Você quer o calor necessário para derreter completamente um bloco de gelo a 0 °C.','Calor latente'],
+ ['Você quer o calor necessário para esquentar água de 20 °C até 60 °C, sem mudar de estado.','Calor sensível'],
+ ['Um mergulhador desce e você quer a pressão da água sobre ele a certa profundidade.','Pressão hidrostática (Stevin)'],
+ ['Um objeto flutua parcialmente submerso na água; você quer a força que a água faz para cima nele.','Empuxo (princípio de Arquimedes)'],
+ ['Uma bala atravessa um bloco de madeira e sai com velocidade menor; você quer a velocidade do bloco depois.','Impulso e quantidade de movimento'],
+ ['Um pêndulo solto de certa altura oscila sem atrito com o ar; você quer a velocidade dele no ponto mais baixo.','Energia (conservação de energia mecânica)']],
+[['Um objeto é solto do repouso e cai, sem nenhum empurrão inicial.','Queda livre'],
+ ['Um objeto é empurrado horizontalmente do alto de um prédio e cai fazendo uma curva.','Lançamento horizontal'],
+ ['Uma bola é arremessada para cima, na vertical, e depois volta a cair.','Lançamento vertical'],
+ ['Um gás é comprimido rapidamente numa bomba de bicicleta, esquentando, sem trocar calor com fora.','Transformação adiabática'],
+ ['Um gás num cilindro com êmbolo livre é aquecido lentamente, com a pressão sempre igual à atmosférica.','Transformação isobárica'],
+ ['Uma seringa tampada é empurrada bem devagar, em equilíbrio térmico com o ambiente o tempo todo.','Transformação isotérmica'],
+ ['Duas bolas de massas iguais colidem de frente e voltam cada uma com a velocidade da outra, trocada.','Colisão elástica'],
+ ['Dois carrinhos se chocam de frente e seguem grudados, andando juntos depois.','Colisão perfeitamente inelástica']],
+[['Você quer a força elétrica entre duas cargas paradas, separadas por certa distância.','Eletrostática (lei de Coulomb)'],
+ ['Você quer saber quanta corrente elétrica passa por um resistor ligado a uma pilha.','Circuitos elétricos'],
+ ['Uma barra apoiada num ponto de apoio equilibra dois pesos em lados opostos; você quer a distância certa.','Alavancas (momento de uma força)'],
+ ['Uma polia é usada para erguer um peso com menos força; você quer a força necessária.','Máquinas simples (polias)'],
+ ['Você quer a força de atração gravitacional entre a Terra e um satélite em órbita.','Gravitação'],
+ ['Um motor elétrico converte energia elétrica em movimento; você quer a potência dele em watts.','Potência elétrica'],
+ ['Uma pessoa empurra uma carroça e quer saber a potência mecânica que está desenvolvendo.','Potência mecânica (trabalho e potência)'],
+ ['Você bate palmas numa sala vazia e ouve o som voltar poucos instantes depois.','Ondas e som (reflexão do som)']]
+];
+const FIS_RADAR_D=['Áreas bem diferentes: cinemática, força, energia, calor ou eletricidade?','Dentro da mecânica: cinemática, Newton, energia ou impulso?','Cenas parecidas, ferramenta diferente: energia, impulso, calor ou fluidos?','As pegadinhas clássicas: queda × lançamento, e as transformações do gás.','As mais sutis: eletrostática × circuito, alavanca × polia × gravitação.'];
+arGame({id:'ar-fis-radar',s:'fis',t:'fis-radar',nome:'Raio-X do problema',ic:'?',desc:'Sem fazer nenhuma conta: qual princípio ou fórmula resolve essa situação? O passo que trava mais gente na prova, treinado sozinho.',
+ lv:FIS_RADAR.map((bank,i)=>({d:FIS_RADAR_D[i],g:[cq(bank,'Qual ferramenta resolve essa situação?')]}))});
+
+const twin=(a,b,q,right,x)=>()=>arCh('A: '+a+'\nB: '+b+'\n'+q,right,['Só em A','Só em B','Nas duas','Em nenhuma das duas'].filter(o=>o!==right),{x});
+const FIS_GEMEO=[
+[twin('Uma bola é largada do repouso e cai.','Uma bola é empurrada para baixo com força extra e cai.','Em qual delas a velocidade após 2 s é só g·t (queda livre pura)?','Só em A','Queda livre exige partir do repouso; em B há uma velocidade inicial somada.'),
+ twin('Um carrinho anda a 20 m/s constantes numa pista reta.','Um carrinho ganha 2 m/s a cada segundo na mesma pista.','Em qual delas a aceleração é zero?','Só em A','Velocidade constante é aceleração zero (MU). Ganhar velocidade a cada segundo é MUV.'),
+ twin('Um bloco de 2 kg é empurrado por 10 N num chão sem atrito.','O mesmo bloco é empurrado pela mesma força, com 4 N de atrito contra ele.','Em qual delas a aceleração é maior?','Só em A','Sem atrito, toda a força vira aceleração; com atrito, parte da força é gasta vencendo o atrito.'),
+ twin('Um objeto se move com velocidade constante numa trajetória reta.','Um objeto se move em círculo com velocidade de módulo constante.','Em qual delas a aceleração é zero?','Só em A','Mesmo com o módulo constante, o movimento circular muda a direção da velocidade o tempo todo — isso já é uma aceleração (centrípeta).'),
+ twin('Uma pessoa empurra uma parede com toda a força e a parede não se move.','Uma pessoa empurra uma caixa leve e ela desliza pelo chão.','Em qual delas a força aplicada produz aceleração no objeto empurrado?','Só em B','A parede tem uma reação que anula a força (está apoiada na estrutura); a caixa livre acelera conforme F = m·a.')],
+[twin('Uma bola desce um escorregador sem atrito, de altura h.','A mesma bola desce o mesmo escorregador, agora com atrito considerável.','Em qual delas dá para usar conservação de energia mecânica (toda a potencial vira cinética)?','Só em A','Com atrito, parte da energia mecânica vira calor — deixa de se conservar.'),
+ twin('Dois carrinhos idênticos se chocam de frente e ficam grudados.','Dois carrinhos idênticos se chocam de frente e cada um volta com a velocidade do outro.','Em qual delas a energia cinética total se conserva (colisão elástica)?','Só em B','Em A os carrinhos grudam: colisão perfeitamente inelástica, com perda de energia cinética.'),
+ twin('Um gás se expande num pistão, mantendo a pressão igual à atmosfera lá fora.','O mesmo gás está preso num recipiente de paredes rígidas, sem mudar de volume.','Em qual delas o trabalho realizado pelo gás é zero?','Só em B','Trabalho de um gás é p·ΔV; sem variação de volume (isocórica), o trabalho é sempre zero.'),
+ twin('Uma caixa é puxada por uma corda horizontal num chão com atrito.','A mesma caixa é empurrada morro abaixo, sem atrito, só pela gravidade.','Em qual delas existe uma força de atrito atuando contra o movimento?','Só em A','B diz explicitamente "sem atrito": só a gravidade atua.'),
+ twin('Uma mola é esticada e solta, empurrando um carrinho.','Um carrinho é empurrado pela mão de alguém, com força constante, por certa distância.','Em qual delas a energia armazenada antes do movimento é do tipo elástica?','Só em A','Só a mola guarda energia potencial elástica; a mão faz trabalho direto, sem estocar energia numa deformação.')],
+[twin('Uma bala atinge um bloco de madeira e fica alojada dentro dele.','Uma bola de aço bate numa parede e volta com quase a mesma velocidade.','Em qual delas a quantidade de movimento do sistema se conserva?','Nas duas','Quantidade de movimento se conserva em qualquer colisão de sistema isolado — só a energia cinética é que pode se perder.'),
+ twin('Um bloco desliza sobre uma mesa com atrito, freando aos poucos.','Uma bola de bilhar rola numa mesa sem atrito, sem perder velocidade.','Em qual delas a energia mecânica se conserva?','Só em B','O atrito, em A, dissipa energia mecânica em forma de calor.'),
+ twin('Um balão é aquecido lentamente ao sol, com a pressão do ar sempre igual à de fora.','Um balão idêntico é comprimido rapidamente na mão, sem tempo de trocar calor com o ambiente.','Em qual delas o calor trocado (Q) é zero?','Só em B','Transformação adiabática é justamente a que não troca calor — o caso de B.'),
+ twin('Um bloco de gelo a 0 °C recebe calor e começa a virar água, ainda a 0 °C.','Um bloco de água a 20 °C recebe calor e sobe para 40 °C.','Em qual delas a temperatura muda enquanto o calor é recebido?','Só em B','Numa mudança de estado (calor latente), a temperatura fica constante; ela só sobe quando não há mudança de estado (calor sensível).'),
+ twin('Um corpo está imerso totalmente na água e sente uma força para cima.','Um corpo está no fundo do oceano, sentindo a pressão da água ao redor por todos os lados.','Em qual delas o conceito central é o empuxo?','Só em A','A é empuxo (força resultante para cima); B é pressão hidrostática, a força da água por área, em todas as direções.')],
+[twin('Duas cargas elétricas positivas ficam paradas, uma perto da outra.','Uma corrente elétrica percorre um fio condutor.','Em qual delas se aplica a lei de Coulomb (força entre cargas)?','Só em A','Coulomb trata da força entre cargas em repouso; corrente é carga em movimento, capítulo de circuitos.'),
+ twin('Uma barra rígida gira em torno de um ponto de apoio fixo, equilibrando dois pesos.','Um bloco é erguido por uma corda que passa por uma roldana fixa no teto.','Em qual delas o conceito principal é o momento de uma força (torque)?','Só em A','A é uma alavanca (torque); B é uma polia simples, que só muda a direção da força.'),
+ twin('Uma lâmpada de 100 W fica ligada por 1 hora.','Uma pessoa realiza 360.000 J de trabalho empurrando um carrinho em 1 hora.','As duas envolvem a mesma unidade de potência (watt)?','Nas duas','Potência elétrica e mecânica são medidas na mesma unidade, o watt — só a origem da energia muda.'),
+ twin('Uma bola é solta do repouso de uma altura h.','Uma bola é lançada horizontalmente da mesma altura h, com alguma velocidade.','As duas levam o mesmo tempo para chegar ao chão?','Nas duas','O tempo de queda depende só da altura e da gravidade; a velocidade horizontal não interfere no tempo de queda, só no alcance.'),
+ twin('Dois carrinhos de massas iguais colidem e ficam grudados, cada um a 10 m/s antes do choque, em sentidos opostos.','Os mesmos dois carrinhos colidem e cada um ricocheteia com 10 m/s, invertendo o sentido.','Em qual delas a velocidade final, depois do choque, é zero?','Só em A','Em A os carrinhos grudam com quantidades de movimento opostas que se cancelam, parando; em B (elástica, massas iguais) cada um sai com a velocidade do outro.')],
+[twin('Um satélite orbita a Terra a uma altura constante.','Uma pedra presa por um barbante gira em círculo na mão de alguém.','Nas duas existe uma força centrípeta apontando para o centro do movimento?','Nas duas','Todo movimento circular precisa de força resultante para o centro — na órbita é a gravidade; no barbante, a tração.'),
+ twin('Um gás se expande empurrando um pistão, realizando trabalho sobre o meio.','Um gás é aquecido num recipiente de volume fixo, sem pistão.','Em qual delas todo o calor recebido vira só energia interna?','Só em B','Sem variação de volume, W = p·ΔV = 0; pela 1ª lei, Q = ΔU inteiro.'),
+ twin('Uma onda sonora se propaga no ar.','Uma onda de luz se propaga no vácuo.','As duas precisam de um meio material para se propagar?','Só em A','Som é onda mecânica: precisa de meio. Luz é eletromagnética: se propaga até no vácuo.'),
+ twin('Uma mola ideal presa a um bloco oscila para frente e para trás, sem atrito.','Um pêndulo simples oscila de um lado para o outro, sem atrito com o ar.','Nas duas a energia mecânica total se conserva durante o movimento?','Nas duas','Sem atrito, tanto o sistema massa-mola quanto o pêndulo trocam energia potencial por cinética sem perdas.'),
+ twin('Uma lente convergente forma a imagem de um objeto colocado além do foco.','Um espelho plano forma a imagem de um objeto à sua frente.','Em qual delas a imagem pode ser projetada numa tela (imagem real)?','Só em A','A lente convergente, com o objeto além do foco, forma imagem real, projetável. O espelho plano sempre forma imagem virtual, atrás do espelho.')]
+];
+const FIS_GEMEO_D=['Queda, MU/MUV e atrito: o par mais direto.','Conservação de energia e transformações do gás: quando "zera"?','Colisão e troca de calor: o que se conserva de fato?','Eletrostática × circuito, alavanca × polia: nomes parecidos, contas diferentes.','As mais avançadas: centrípeta, 1ª lei da termodinâmica e natureza da onda.'];
+arGame({id:'ar-fis-gemeo',s:'fis',t:'fis-gemeo',nome:'Pegadinha gêmea',ic:'A≟B',desc:'Duas situações quase idênticas na casca: só uma (ou nenhuma, ou as duas) aceita a mesma ferramenta. Treina exatamente a discriminação que falha na prova.',
+ lv:FIS_GEMEO.map((g,i)=>({d:FIS_GEMEO_D[i],g}))});
 
 /* ===================== ARENA: QUÍMICA =====================
    Nomenclatura gerada a partir de tabelas de íons e de cadeias carbônicas, tabela periódica
@@ -4100,7 +4313,14 @@ function viewArenaHome(){
   if(sid==='hist') h+=jnFeatureCard();
   h+='<div class="arsum s-'+sid+'"><div><b>'+lvDone+'<small>/'+(gs.length*5)+'</small></b><span>níveis concluídos</span></div><div><b>'+st+'<small>/'+(gs.length*15)+'</small></b><span>estrelas</span></div><div><b>'+gs.length+'</b><span>jogos, um por tópico</span></div></div>';
   if(rec) h+='<button class="arrec" data-a="arPlay" data-g="'+rec.id+'" data-l="'+arUnl(rec.id)+'"><span class="small">Recomendado agora</span><b>'+esc(rec.nome)+' · nível '+arUnl(rec.id)+'</b><span class="small">Mais peso na prova e menos domínio seu.</span><span class="btn primary sm">Jogar</span></button>';
-  h+='<div class="aglist">'+gs.map(arCard).join('')+'</div>';
+  if(sid==='port'){
+    h+='<button class="btn ghost block" data-a="portPegaSheet" style="margin:12px 0">'+ICO.q+' Biblioteca de pegadinhas · '+PORT_PEGA.length+' armadilhas com truque</button>';
+    ['dura','lex','lei'].forEach(k=>{
+      const meta=PORT_TRILHAS[k], items=gs.filter(g=>PORT_TRILHA[g.t]).filter(g=>PORT_TRILHA[g.t].tr===k).sort((a,b)=>PORT_TRILHA[a.t].o-PORT_TRILHA[b.t].o);
+      if(!items.length) return;
+      h+='<h2>'+esc(meta.n)+'</h2><p class="small muted" style="margin-top:-8px">'+esc(meta.d)+'</p><div class="aglist">'+items.map(arCard).join('')+'</div>';
+    });
+  } else h+='<div class="aglist">'+gs.map(arCard).join('')+'</div>';
   h+='<div class="row modes" style="margin-top:14px"><button class="btn sm" data-a="relOpenS" data-s="'+sid+'">'+ICO.bolt+' Relâmpago da matéria</button><button class="btn sm" data-a="bossOpen" data-s="'+sid+'">'+ICO.crown+' Chefão da matéria</button></div>';
   return h;
 }
@@ -4260,7 +4480,8 @@ const ARENA_A={
   arMap:b=>{ const G=arCur(); if(!G||G.ans) return; const r=G.rounds[G.pos], z=b.dataset.z; G.pick=z; arResolve(G,r,z===r.zone); },
   arPT:b=>{ const G=arCur(); if(!G||G.ans) return; const r=G.rounds[G.pos], s=b.dataset.s; G.pick=s; arResolve(G,r,s===r.sym); },
   arBal:b=>{ const G=arCur(); if(!G||G.ans) return; const r=G.rounds[G.pos], rs=arRS(G); rs.co=rs.co||r.co.map(()=>1); const i=+b.dataset.i; rs.co[i]=clamp(rs.co[i]+(+b.dataset.d),1,15); SND.tap(); render(); },
-  arBalOk:()=>{ const G=arCur(); if(!G||G.ans) return; const r=G.rounds[G.pos], rs=arRS(G), co=rs.co||r.co.map(()=>1); const ok=co.every((v,i)=>v===r.co[i]); arResolve(G,r,ok,ok?1:co.filter((v,i)=>v===r.co[i]).length/co.length*0.5); }
+  arBalOk:()=>{ const G=arCur(); if(!G||G.ans) return; const r=G.rounds[G.pos], rs=arRS(G), co=rs.co||r.co.map(()=>1); const ok=co.every((v,i)=>v===r.co[i]); arResolve(G,r,ok,ok?1:co.filter((v,i)=>v===r.co[i]).length/co.length*0.5); },
+  portPegaSheet:()=>sheetPortPega()
 };
 const ARENA_NOUNDO=Object.keys(ARENA_A);
 /* teclado nas partidas da Arena */

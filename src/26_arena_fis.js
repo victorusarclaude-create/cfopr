@@ -3,7 +3,6 @@
    Situações de bombeiro com números novos a cada rodada, conceitos com distratores
    plausíveis e gráficos para ler. g = 10 m/s² em todo o jogo. */
 const fg=(id,t,nome,ic,desc,lv)=>arGame({id,s:'fis',t,nome,ic,desc,lv});
-const cq=(bank,q)=>()=>{ const it=rP(bank); return arCh((q?q+'\n':'')+it[0],it[1],it[2]?it[2].split('|'):[...new Set(bank.map(x=>x[1]))].filter(x=>x!==it[1]),{x:it[3]||it[1]}); };
 
 fg('ar-fis-unid','fis-unid','Unidades e ordens de grandeza','SI','Unidades do SI, conversões, prefixos, notação científica e análise dimensional.',[
  {d:'Grandeza e unidade no SI.',g:[cq([['Força','newton (N)'],['Energia','joule (J)'],['Potência','watt (W)'],['Pressão','pascal (Pa)'],['Carga elétrica','coulomb (C)'],['Corrente elétrica','ampère (A)'],['Resistência elétrica','ohm (Ω)'],['Tensão elétrica','volt (V)'],['Frequência','hertz (Hz)'],['Temperatura','kelvin (K)'],['Massa','quilograma (kg)'],['Quantidade de matéria','mol (mol)']],'Qual a unidade no SI de:')]},

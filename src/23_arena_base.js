@@ -81,6 +81,9 @@ function arOdd(q,trues,falses,askFalse,o){
   const right=askFalse?rP(falses):rP(trues), others=askFalse?rN(trues,4):rN(falses,4);
   return arCh(q,right,others,Object.assign({n:5},o||{}));
 }
+/* pergunta de classificação a partir de um banco [situação, resposta, distratores?, explicação?];
+   sem distratores explícitos, usa as outras respostas do próprio banco como opções erradas */
+const cq=(bank,q)=>()=>{ const it=rP(bank); return arCh((q?q+'\n':'')+it[0],it[1],it[2]?it[2].split('|'):[...new Set(bank.map(x=>x[1]))].filter(x=>x!==it[1]),{x:it[3]||it[1]}); };
 
 /* ---------- itens de lacuna (Português e História) ----------
    {s:'Fui {} farmácia.', c:'à', w:['a'], x:'regra'} */
