@@ -19,18 +19,18 @@ const JN_AREAN={guaira:'Província del Guairá (espanhola)',contestado:'Área do
 const JN_MAIN_RIV=['parana','paranapanema','iguacu'];
 const JN_MAJOR=['Curitiba','Paranaguá','Ponta Grossa','Castro','Lapa','Guarapuava','Palmas','Londrina','Maringá','Cascavel','Foz do Iguaçu','Francisco Beltrão','União da Vitória','Jacarezinho','Umuarama','Campo Mourão','Guaíra','Paranavaí','Toledo'];
 const JN_INFO={
-  litoral:'Faixa baixa entre o mar e a Serra do Mar. Paranaguá (primeira vila, 1648), Antonina, Morretes, Guaratuba, Guaraqueçaba, Ilha do Mel. Sambaquis, ouro de aluvião no século XVII e porto da erva-mate.',
-  curitiba:'Primeiro Planalto, logo atrás da Serra do Mar. Curitiba (pelourinho em 1668, vila em 1693, capital desde 1853), colônias de imigrantes ao redor da capital, Rio Negro (colônia alemã de 1829) e o Vale do Ribeira.',
-  camposgerais:'Segundo Planalto, campos naturais entre a Escarpa Devoniana e a Serra Geral. Ponta Grossa, Castro, Lapa, Palmeira, Jaguariaíva, Tibagi. Fazendas de gado e pousos do Caminho de Viamão, Cerco da Lapa (1894), holandeses em Carambeí (1911).',
-  sudeste:'Vale do Iguaçu, no Segundo Planalto: Irati, Prudentópolis, São Mateus do Sul, Mallet, União da Vitória. Erva-mate, madeira, colônias de poloneses e ucranianos. Faz divisa com a antiga área do Contestado.',
-  guarapuava:'Terceiro Planalto. Campos dos Kaingang, conquistados pela Real Expedição de 1810. Guarapuava, Pitanga, Candói.',
-  palmas:'Campos do extremo sul, ocupados em 1839–1840. Palmas e Clevelândia, cujo nome homenageia Grover Cleveland, o árbitro da Questão de Palmas (1895).',
-  sudoeste:'Colonizado por gaúchos e catarinenses a partir dos anos 1940 (CANGO, 1943). Francisco Beltrão, Pato Branco, Capanema. Revolta dos Posseiros (1957).',
-  oeste:'Fronteira com Paraguai e Argentina. Obrages de erva-mate e madeira, Colônia Militar de Foz do Iguaçu (1889), Território do Iguaçu (1943–1946), colonização da MARIPÁ (Toledo, 1946), Cascavel, Itaipu (1984) e as Cataratas.',
-  nortepioneiro:'Norte Velho, colado em São Paulo. Ocupado por mineiros e paulistas desde o século XIX; primeiros cafezais. Jacarezinho, Santo Antônio da Platina, Cornélio Procópio, Tomazina.',
-  nortenovo:'Colonizado pela Companhia de Terras Norte do Paraná (1925): Londrina (1929), Maringá (1947), Apucarana, Rolândia. Terra roxa e café; Guerra de Porecatu (1948–1951).',
-  noroeste:'Norte Novíssimo: Paranavaí, Umuarama, Cianorte. Última frente do café, nos anos 1950. Serra dos Dourados, terra dos Xetá.',
-  centro:'Campo Mourão e Vale do Ivaí. Passagem do Caminho do Peabiru (a cidade de Peabiru) e da antiga Villa Rica del Espíritu Santo, às margens do Ivaí.'};
+  litoral:'Faixa baixa entre o mar e a Serra do Mar. Paranaguá (primeira vila, 1648), Antonina, Morretes, Guaratuba, Guaraqueçaba, Ilha do Mel. Sambaquis, ouro de aluvião no século XVII e porto da erva-mate. Hoje vive do porto de Paranaguá, um dos maiores do Brasil em movimento de granéis, e do turismo de praias e da Ilha do Mel.',
+  curitiba:'Primeiro Planalto, logo atrás da Serra do Mar. Curitiba (pelourinho em 1668, vila em 1693, capital desde 1853), colônias de imigrantes ao redor da capital, Rio Negro (colônia alemã de 1829) e o Vale do Ribeira. Hoje é a capital mais populosa do Sul do Brasil e um polo industrial, com destaque para veículos e tecnologia.',
+  camposgerais:'Segundo Planalto, campos naturais entre a Escarpa Devoniana e a Serra Geral. Ponta Grossa, Castro, Lapa, Palmeira, Jaguariaíva, Tibagi. Fazendas de gado e pousos do Caminho de Viamão, Cerco da Lapa (1894), holandeses em Carambeí (1911). Hoje é polo de grãos, papel e celulose, além do turismo rural e de parques como Vila Velha.',
+  sudeste:'Vale do Iguaçu, no Segundo Planalto: Irati, Prudentópolis, São Mateus do Sul, Mallet, União da Vitória. Erva-mate, madeira, colônias de poloneses e ucranianos. Faz divisa com a antiga área do Contestado. Hoje segue como uma das maiores áreas de produção de erva-mate e madeira do estado, com forte identidade eslava.',
+  guarapuava:'Terceiro Planalto. Campos dos Kaingang, conquistados pela Real Expedição de 1810. Guarapuava, Pitanga, Candói. Hoje é um dos maiores polos de grãos (soja e milho) e produção de sementes do Paraná.',
+  palmas:'Campos do extremo sul, ocupados em 1839–1840. Palmas e Clevelândia, cujo nome homenageia Grover Cleveland, o árbitro da Questão de Palmas (1895). Hoje vive de pecuária e grãos, numa região de fronteira turística com Santa Catarina.',
+  sudoeste:'Colonizado por gaúchos e catarinenses a partir dos anos 1940 (CANGO, 1943). Francisco Beltrão, Pato Branco, Capanema. Revolta dos Posseiros (1957). Hoje é polo de agricultura familiar, suinocultura e avicultura.',
+  oeste:'Fronteira com Paraguai e Argentina. Obrages de erva-mate e madeira, Colônia Militar de Foz do Iguaçu (1889), Território do Iguaçu (1943–1946), colonização da MARIPÁ (Toledo, 1946), Cascavel, Itaipu (1984) e as Cataratas. Hoje reúne grandes agroindústrias, o turismo das Cataratas e a energia gerada por Itaipu.',
+  nortepioneiro:'Norte Velho, colado em São Paulo. Ocupado por mineiros e paulistas desde o século XIX; primeiros cafezais. Jacarezinho, Santo Antônio da Platina, Cornélio Procópio, Tomazina. Hoje mistura café remanescente, grãos e pequenos polos industriais, como em Jacarezinho e Cornélio Procópio.',
+  nortenovo:'Colonizado pela Companhia de Terras Norte do Paraná (1925): Londrina (1929), Maringá (1947), Apucarana, Rolândia. Terra roxa e café; Guerra de Porecatu (1948–1951). Hoje é a região mais urbanizada do interior paranaense, com Londrina e Maringá como polos regionais.',
+  noroeste:'Norte Novíssimo: Paranavaí, Umuarama, Cianorte. Última frente do café, nos anos 1950. Serra dos Dourados, terra dos Xetá. Hoje vive de pecuária de corte e grãos, numa área que foi a última grande frente do café.',
+  centro:'Campo Mourão e Vale do Ivaí. Passagem do Caminho do Peabiru (a cidade de Peabiru) e da antiga Villa Rica del Espíritu Santo, às margens do Ivaí. Hoje é polo de grãos no Vale do Ivaí, com Campo Mourão entre os maiores produtores agrícolas do estado.'};
 
 function jnPeek(id){ return ((S.jn||{}).c||{})[id]||{p:0,d:0,st:0,w:[]}; }
 function jnRec(id){ const J=S.jn||(S.jn={}), c=J.c||(J.c={}); return c[id]||(c[id]={p:0,d:0,st:0,w:[]}); }
@@ -273,6 +273,7 @@ function viewJnEnd(){
   if(J.first){ const now=jnConquered(); h+='<div class="jnmap jnmap-end">'+jnMap({z:'pr',l:['rios'],r:now,r2:[],c:[],rt:[],a:[],rv:[]},{prev:{z:'pr',r:J.prevReg}})+'</div>'; }
   if(J.unl!=null) h+='<div class="unlockbox">'+ICO.up+'<div><b>Capítulo '+J.unl+' liberado</b><span>'+esc(JN_CAP[J.unl].n)+': '+esc(JN_CAP[J.unl].t)+'</span></div></div>';
   h+='<h3>Para levar para a prova</h3><ul class="jnres">'+cap.res.map(x=>'<li>'+fmtText(x)+'</li>').join('')+'</ul>';
+  if(cap.cur&&cap.cur.length) h+='<h3>Curiosidades</h3><ul class="jnres jncur">'+cap.cur.map(x=>'<li>'+fmtText(x)+'</li>').join('')+'</ul>';
   h+='<div class="stack">'+(nx!=null?'<button class="btn primary block" data-a="jnCap" data-i="'+nx+'">'+ICO.play+' Capítulo '+nx+': '+esc(JN_CAP[nx].n)+'</button>':'')+'<button class="btn block" data-a="jnHome">Voltar à Jornada</button>'+(J.stars<3?'<button class="btn ghost block" data-a="jnRedoRev">Refazer a revisão</button>':'')+'</div>';
   return h;
 }
@@ -310,6 +311,7 @@ function sheetJnResumo(i){
   const c=JN_CAP[i]; if(!c) return;
   let h='<h2 id="sheetTitle">'+i+'. '+esc(c.n)+'</h2><p class="small muted">'+esc(c.era)+' · '+esc(c.t)+'</p><ul class="jnres">'+c.res.map(x=>'<li>'+fmtText(x)+'</li>').join('')+'</ul>';
   if(c.tl&&c.tl.length) h+='<h3>Datas</h3><ul class="jntl">'+c.tl.map(([y,t])=>'<li><b>'+esc(y)+'</b><span>'+esc(t)+'</span></li>').join('')+'</ul>';
+  if(c.cur&&c.cur.length) h+='<h3>Curiosidades</h3><ul class="jnres jncur">'+c.cur.map(x=>'<li>'+fmtText(x)+'</li>').join('')+'</ul>';
   if(jnOpen(i)) h+='<div class="row" style="margin-top:12px"><button class="btn primary block" data-a="jnCap" data-i="'+i+'">'+(jnPeek(c.id).d?'Refazer o capítulo':'Abrir o capítulo')+'</button></div>';
   openSheet(h);
 }
