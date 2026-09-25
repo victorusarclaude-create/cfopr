@@ -38,6 +38,20 @@ function metricsChart(n){
   return '<div class="wchart"><div class="wc-h"><b>XP por mês</b><span class="small muted">últimos 12 meses</span></div><div class="wc-bars">'+months.map(x=>{ const cur=x.y===now.getFullYear()&&x.m===now.getMonth(); return '<div class="wc-col'+(cur?' today':'')+(x.v?' has':'')+'"><span class="wc-v">'+(x.v||'')+'</span><i style="height:'+Math.max(3,Math.round(x.v/mx*100))+'%"></i><span class="wc-d">'+new Date(x.y,x.m,1).toLocaleDateString('pt-BR',{month:'short'}).replace('.','')+'</span></div>'; }).join('')+'</div></div>';
 }
 function bigStat(label,val,sub){ return '<div class="bstat"><b>'+val+'</b><span>'+esc(label)+'</span>'+(sub?'<em>'+esc(sub)+'</em>':'')+'</div>'; }
+/* mapa de atividade: um quadradinho por dia, mais escuro quanto mais XP — o "ano do GitHub" do seu estudo */
+function heatmapHTML(weeks){
+  weeks=weeks||14; const n=weeks*7, k0=today(), days=[]; for(let i=n-1;i>=0;i--) days.push(addDays(k0,-i));
+  const vals=days.map(dk=>(S.days[dk]||{}).xp||0), mx=Math.max(1,...vals), active=vals.filter(v=>v>0).length;
+  const lvl=v=>v<=0?0:v<mx*0.25?1:v<mx*0.5?2:v<mx*0.75?3:4;
+  const cols=[]; for(let i=0;i<days.length;i+=7) cols.push(days.slice(i,i+7));
+  const MS=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  let lastM=-1;
+  let h='<div class="heatwrap"><div class="wc-h"><b>Seus últimos '+n+' dias</b><span class="small muted">'+cuN(active)+' dia'+(active===1?'':'s')+' ativo'+(active===1?'':'s')+'</span></div><div class="heat">'+cols.map((col,ci)=>{
+    const d0=dateOf(col[0]), showM=d0.getMonth()!==lastM; lastM=d0.getMonth();
+    return '<div class="heat-col" style="animation-delay:'+(ci*14)+'ms"><span class="heat-m">'+(showM?MS[d0.getMonth()]:'')+'</span>'+col.map(dk=>{ const v=(S.days[dk]||{}).xp||0, l=lvl(v), d=dateOf(dk), lbl=d.toLocaleDateString('pt-BR')+': '+(v?v+' XP':'sem estudo');
+      return '<i class="hd l'+l+(dk===k0?' today':'')+'" role="img" aria-label="'+esc(lbl)+'" title="'+esc(lbl)+'"></i>'; }).join('')+'</div>'; }).join('')+'</div></div>';
+  return h;
+}
 function sheetMetrics(){
   const range=UI.metRange||7, T0=statsRange(1), R=statsRange(range), fd=totalFlashDue();
   let h='<h2 id="sheetTitle">Métricas</h2><h3>Hoje</h3><div class="bigstats">'+bigStat('XP',cuN(T0.xp),'meta: '+goalXP())+bigStat('Tempo estudado',fmtMin(T0.min))+bigStat('Questões',cuN(T0.q),T0.q?pct(T0.a,T0.q)+' de acerto':'')+bigStat('Flashcards',cuN(T0.c),fd?fd+' vencendo agora':'')+'</div>';
@@ -64,14 +78,16 @@ function viewMapa(){
   h+='<button class="rankcard btnlike" data-a="rankOpen"><span class="insig">'+insigniaSVG(P.idx)+'</span><div><b>'+esc(PATENTES[P.idx])+' · Nível '+lv.L+'</b><span class="small muted">'+(P.next!=null?'Próxima patente com '+Math.round(P.next*100)+'% de domínio':'Patente máxima')+'</span><div class="bar"><i style="width:'+Math.round(P.within*100)+'%"></i></div></div></button>';
   h+='<div class="row" style="margin-top:12px"><button class="btn" data-a="aiPainel">'+ICO.spark+' Análise do Claude</button><button class="btn ghost" data-a="achOpen">'+ICO.medal+' Conquistas '+Object.keys(S.ach).length+'/'+ACH.length+'</button><button class="btn ghost" data-a="metOpen">Métricas</button></div>';
   h+='<div class="aibox" id="ai-painel"'+(AIR.painel?'':' hidden')+'>'+aiBox('painel')+'</div>';
+  h+=heatmapHTML(14);
   h+=metricsChart(14);
   h+='<h2>Matérias</h2>';
   Object.keys(BLOCOS).forEach(bid=>{
     const ss=SUBJECTS.filter(s=>s.bloco===bid); if(!ss.length) return;
     const q=ss.reduce((a,s)=>a+s.q,0), avg=ss.reduce((a,s)=>a+subjMastery(s.id),0)/ss.length, bcl=mCls(avg);
-    h+='<details class="subj" open><summary><span class="sn"><i class="mdot" style="background:var(--'+bcl+')"></i>'+esc(BLOCOS[bid])+'</span><span class="sq">'+q+' questões · '+Math.round(avg*100)+'%</span></summary><div class="inner"><ul class="list">';
-    ss.forEach(s=>{ const m=subjMastery(s.id), cl=mCls(m); h+='<li><button class="subjrow" data-a="subjOpen" data-s="'+s.id+'"><span class="sr-top"><span class="nm"><i class="mdot" style="background:var(--'+cl+')"></i>'+esc(s.nome)+'</span><span class="lvl '+cl+'">'+nivel(m)+'</span></span><span class="mbar"><i style="width:'+Math.round(m*100)+'%;background:var(--'+cl+')"></i></span><span class="small muted">'+s.q+' questões na prova · '+Math.round(m*100)+'% de domínio · acerto estimado '+Math.round(subjProj(s.id)*100)+'%</span></button></li>'; });
-    h+='</ul></div></details>';
+    h+='<details class="subj" open><summary><span class="sn"><i class="mdot" style="background:var(--'+bcl+')"></i>'+esc(BLOCOS[bid])+'</span><span class="sq">'+q+' questões · '+Math.round(avg*100)+'%</span></summary><div class="inner">';
+    ss.forEach(s=>{ const m=subjMastery(s.id), cl=mCls(m), mono=(s.nome.replace(/[^A-ZÀ-ÖØ-Ý]/g,'')||s.nome.toUpperCase()).slice(0,2);
+      h+='<button class="subjcard" data-a="subjOpen" data-s="'+s.id+'"><span class="subjcard-ic" style="background:var(--'+cl+')">'+esc(mono)+'</span><span class="subjcard-b"><span class="nm">'+esc(s.nome)+'</span><span class="mbar"><i style="width:'+Math.round(m*100)+'%;background:var(--'+cl+')"></i></span><span class="meta">'+s.q+' questões na prova · acerto estimado '+Math.round(subjProj(s.id)*100)+'%</span></span><span class="lvl '+cl+'">'+nivel(m)+'</span></button>'; });
+    h+='</div></details>';
   });
   const top=ranked().slice(0,5);
   h+='<h2>Próximos na fila</h2><p class="small muted">Os tópicos com mais peso na prova e menos domínio seu, na ordem em que valem mais a pena agora.</p><ul class="list">'+top.map(r=>{ const st=T(r.t.id); return '<li><button class="trow" data-a="topic" data-t="'+r.t.id+'">'+ladder(st.rung)+'<span><span class="nm">'+esc(r.t.nome)+'</span><br><span class="meta">'+esc(reason(r.s,r.t))+'</span></span><span class="pill">'+RUNGS[st.rung]+'</span></button></li>'; }).join('')+'</ul>';

@@ -404,12 +404,32 @@ details.content-d>summary svg{width:17px;height:17px;color:var(--pri)}
 .patlist li em{margin-left:auto;font-style:normal;font-size:.8rem;font-weight:600}
 .patlist li.done{color:var(--ink)} .patlist li.cur{background:var(--gold-soft);color:var(--ink);font-weight:700}
 .patlist li:not(.done):not(.cur) .insig{opacity:.35;filter:grayscale(1)}
-.subjrow{display:block;width:100%;text-align:left;background:none;border:0;padding:12px 0}
+.subjcard{display:grid;grid-template-columns:44px 1fr auto;gap:13px;align-items:center;width:100%;padding:12px 13px;margin-bottom:9px;border:1px solid var(--line);border-radius:16px;background:var(--surface);box-shadow:var(--sh1);text-align:left;transition:transform .35s var(--spring),border-color .2s,box-shadow .25s}
+.subjcard-ic{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;font-weight:800;font-size:.86rem;letter-spacing:-.01em;color:#fff;flex:none}
+.subjcard-b{display:flex;flex-direction:column;gap:1px;min-width:0}
+.subjcard-b .nm{font-weight:700;font-size:.95rem;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.subjcard-b .meta{font-size:.78rem;color:var(--muted);line-height:1.35}
+.subjcard .lvl{font-size:.8rem;font-weight:750;white-space:nowrap;text-align:right}
+@media (hover:hover) and (pointer:fine){.subjcard:hover{transform:scale(1.012);box-shadow:var(--sh2);border-color:color-mix(in srgb,var(--pri) 30%,var(--line))}}
 .sr-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
 .lvl{font-weight:750;white-space:nowrap;font-size:.9rem}
 .mbar{display:block;height:8px;background:var(--sunk);margin:7px 0 5px;border-radius:999px;overflow:hidden}
 .mbar i{display:block;height:100%;border-radius:999px;transition:width .7s var(--out)}
 .mbar.sm{height:6px;width:140px;max-width:100%}
+.heatwrap{margin-top:18px}
+.heat{display:inline-flex;gap:3px;overflow-x:auto;max-width:100%;padding-bottom:2px}
+.heat-col{display:flex;flex-direction:column;gap:3px;flex:none}
+.heat-m{display:block;height:13px;font-size:.62rem;color:var(--muted);line-height:13px}
+.hd{width:11px;height:11px;border-radius:3px;background:var(--sunk);display:block}
+.hd.l1{background:color-mix(in srgb,var(--pri) 28%,var(--sunk))}
+.hd.l2{background:color-mix(in srgb,var(--pri) 54%,var(--sunk))}
+.hd.l3{background:color-mix(in srgb,var(--pri) 78%,var(--sunk))}
+.hd.l4{background:var(--pri)}
+.hd.today{box-shadow:0 0 0 1.5px var(--ink) inset}
+@media (prefers-reduced-motion: no-preference){
+  .heat-col{animation:heatin .4s var(--out) backwards}
+  @keyframes heatin{from{opacity:0;transform:translateY(4px)}}
+}
 .trow{display:grid;grid-template-columns:26px 1fr auto;gap:12px;align-items:center;width:100%;padding:12px 0;background:none;border:0;text-align:left}
 .trow .meta{font-size:.84rem;color:var(--muted)}
 .trow .pill{font-size:.82rem}
@@ -541,7 +561,7 @@ details.content-d>summary svg{width:17px;height:17px;color:var(--pri)}
 @keyframes rip{60%{opacity:.14}to{transform:scale(1);opacity:0}}
 /* ---------- movimento ---------- */
 @media (prefers-reduced-motion: no-preference){
-  .btn:not([disabled]):active,.alt:not([disabled]):active,.mtile:not([disabled]):active,.simchip:active,.chip:active,.hubcard:active,.nextstep:active,.errcta:active,.act:active,.qk:active,.hs:active,.modecard:active,.spotw:active,.ptcell:active,.agc:active,.kp:active,.sitem:active,.bin:not([disabled]):active,.cgap:active,.iconbtn:active,.backbtn:active,.rankcard:active,.tile:active,.arrec:active,.lvpath li button:not([disabled]):active,.sheet-close:active,.bstep button:active,.seg button:active,#fab:active,.tb-in:active{transform:scale(.955);transition-duration:.09s}
+  .btn:not([disabled]):active,.alt:not([disabled]):active,.mtile:not([disabled]):active,.simchip:active,.chip:active,.hubcard:active,.nextstep:active,.errcta:active,.act:active,.qk:active,.hs:active,.modecard:active,.spotw:active,.ptcell:active,.agc:active,.kp:active,.sitem:active,.bin:not([disabled]):active,.cgap:active,.iconbtn:active,.backbtn:active,.rankcard:active,.tile:active,.arrec:active,.lvpath li button:not([disabled]):active,.sheet-close:active,.bstep button:active,.seg button:active,#fab:active,.tb-in:active,.subjcard:active{transform:scale(.955);transition-duration:.09s}
   #tabs button:active svg{transform:scale(.82);transition-duration:.09s}
   .pop{animation:pop .45s var(--spring)}
   @keyframes pop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
@@ -560,12 +580,12 @@ details.content-d>summary svg{width:17px;height:17px;color:var(--pri)}
   .boss.hit .boss-ic{animation:shake .4s} .boss.atk{animation:shake .4s}
   #app.enter>*{animation:rise .46s var(--out) backwards}
   #app.enter>*:nth-child(2){animation-delay:.03s} #app.enter>*:nth-child(3){animation-delay:.06s} #app.enter>*:nth-child(4){animation-delay:.09s} #app.enter>*:nth-child(5){animation-delay:.12s} #app.enter>*:nth-child(6){animation-delay:.15s} #app.enter>*:nth-child(7){animation-delay:.18s} #app.enter>*:nth-child(8){animation-delay:.21s} #app.enter>*:nth-child(9){animation-delay:.24s} #app.enter>*:nth-child(n+10){animation-delay:.27s}
-  #app.enter :is(.hubgrid,.aglist,.missions ul,.lvpath,.hh-stats,.arsum,.metrics,.quickrow)>*{animation:rise .5s var(--out) backwards}
-  #app.enter :is(.hubgrid,.aglist,.missions ul,.lvpath,.hh-stats,.arsum,.metrics,.quickrow)>*:nth-child(2){animation-delay:.1s}
-  #app.enter :is(.hubgrid,.aglist,.missions ul,.lvpath,.hh-stats,.arsum,.metrics,.quickrow)>*:nth-child(3){animation-delay:.15s}
-  #app.enter :is(.hubgrid,.aglist,.missions ul,.lvpath,.hh-stats,.arsum,.metrics,.quickrow)>*:nth-child(4){animation-delay:.2s}
-  #app.enter :is(.hubgrid,.aglist,.missions ul,.lvpath,.hh-stats,.arsum,.metrics,.quickrow)>*:nth-child(5){animation-delay:.25s}
-  #app.enter :is(.hubgrid,.aglist,.missions ul,.lvpath,.hh-stats,.arsum,.metrics,.quickrow)>*:nth-child(n+6){animation-delay:.3s}
+  #app.enter :is(.hubgrid,.aglist,.subj .inner,.missions ul,.lvpath,.hh-stats,.arsum,.metrics,.quickrow)>*{animation:rise .5s var(--out) backwards}
+  #app.enter :is(.hubgrid,.aglist,.subj .inner,.missions ul,.lvpath,.hh-stats,.arsum,.metrics,.quickrow)>*:nth-child(2){animation-delay:.1s}
+  #app.enter :is(.hubgrid,.aglist,.subj .inner,.missions ul,.lvpath,.hh-stats,.arsum,.metrics,.quickrow)>*:nth-child(3){animation-delay:.15s}
+  #app.enter :is(.hubgrid,.aglist,.subj .inner,.missions ul,.lvpath,.hh-stats,.arsum,.metrics,.quickrow)>*:nth-child(4){animation-delay:.2s}
+  #app.enter :is(.hubgrid,.aglist,.subj .inner,.missions ul,.lvpath,.hh-stats,.arsum,.metrics,.quickrow)>*:nth-child(5){animation-delay:.25s}
+  #app.enter :is(.hubgrid,.aglist,.subj .inner,.missions ul,.lvpath,.hh-stats,.arsum,.metrics,.quickrow)>*:nth-child(n+6){animation-delay:.3s}
   @keyframes rise{from{opacity:0;transform:translateY(14px)}}
   #app.enter .hazard{animation:barin .7s var(--out) .12s backwards}
   @keyframes barin{from{transform:scaleX(0)}}

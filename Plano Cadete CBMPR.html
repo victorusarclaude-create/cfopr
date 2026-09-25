@@ -404,12 +404,32 @@ details.content-d>summary svg{width:17px;height:17px;color:var(--pri)}
 .patlist li em{margin-left:auto;font-style:normal;font-size:.8rem;font-weight:600}
 .patlist li.done{color:var(--ink)} .patlist li.cur{background:var(--gold-soft);color:var(--ink);font-weight:700}
 .patlist li:not(.done):not(.cur) .insig{opacity:.35;filter:grayscale(1)}
-.subjrow{display:block;width:100%;text-align:left;background:none;border:0;padding:12px 0}
+.subjcard{display:grid;grid-template-columns:44px 1fr auto;gap:13px;align-items:center;width:100%;padding:12px 13px;margin-bottom:9px;border:1px solid var(--line);border-radius:16px;background:var(--surface);box-shadow:var(--sh1);text-align:left;transition:transform .35s var(--spring),border-color .2s,box-shadow .25s}
+.subjcard-ic{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;font-weight:800;font-size:.86rem;letter-spacing:-.01em;color:#fff;flex:none}
+.subjcard-b{display:flex;flex-direction:column;gap:1px;min-width:0}
+.subjcard-b .nm{font-weight:700;font-size:.95rem;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.subjcard-b .meta{font-size:.78rem;color:var(--muted);line-height:1.35}
+.subjcard .lvl{font-size:.8rem;font-weight:750;white-space:nowrap;text-align:right}
+@media (hover:hover) and (pointer:fine){.subjcard:hover{transform:scale(1.012);box-shadow:var(--sh2);border-color:color-mix(in srgb,var(--pri) 30%,var(--line))}}
 .sr-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
 .lvl{font-weight:750;white-space:nowrap;font-size:.9rem}
 .mbar{display:block;height:8px;background:var(--sunk);margin:7px 0 5px;border-radius:999px;overflow:hidden}
 .mbar i{display:block;height:100%;border-radius:999px;transition:width .7s var(--out)}
 .mbar.sm{height:6px;width:140px;max-width:100%}
+.heatwrap{margin-top:18px}
+.heat{display:inline-flex;gap:3px;overflow-x:auto;max-width:100%;padding-bottom:2px}
+.heat-col{display:flex;flex-direction:column;gap:3px;flex:none}
+.heat-m{display:block;height:13px;font-size:.62rem;color:var(--muted);line-height:13px}
+.hd{width:11px;height:11px;border-radius:3px;background:var(--sunk);display:block}
+.hd.l1{background:color-mix(in srgb,var(--pri) 28%,var(--sunk))}
+.hd.l2{background:color-mix(in srgb,var(--pri) 54%,var(--sunk))}
+.hd.l3{background:color-mix(in srgb,var(--pri) 78%,var(--sunk))}
+.hd.l4{background:var(--pri)}
+.hd.today{box-shadow:0 0 0 1.5px var(--ink) inset}
+@media (prefers-reduced-motion: no-preference){
+  .heat-col{animation:heatin .4s var(--out) backwards}
+  @keyframes heatin{from{opacity:0;transform:translateY(4px)}}
+}
 .trow{display:grid;grid-template-columns:26px 1fr auto;gap:12px;align-items:center;width:100%;padding:12px 0;background:none;border:0;text-align:left}
 .trow .meta{font-size:.84rem;color:var(--muted)}
 .trow .pill{font-size:.82rem}
@@ -541,7 +561,7 @@ details.content-d>summary svg{width:17px;height:17px;color:var(--pri)}
 @keyframes rip{60%{opacity:.14}to{transform:scale(1);opacity:0}}
 /* ---------- movimento ---------- */
 @media (prefers-reduced-motion: no-preference){
-  .btn:not([disabled]):active,.alt:not([disabled]):active,.mtile:not([disabled]):active,.simchip:active,.chip:active,.hubcard:active,.nextstep:active,.errcta:active,.act:active,.qk:active,.hs:active,.modecard:active,.spotw:active,.ptcell:active,.agc:active,.kp:active,.sitem:active,.bin:not([disabled]):active,.cgap:active,.iconbtn:active,.backbtn:active,.rankcard:active,.tile:active,.arrec:active,.lvpath li button:not([disabled]):active,.sheet-close:active,.bstep button:active,.seg button:active,#fab:active,.tb-in:active{transform:scale(.955);transition-duration:.09s}
+  .btn:not([disabled]):active,.alt:not([disabled]):active,.mtile:not([disabled]):active,.simchip:active,.chip:active,.hubcard:active,.nextstep:active,.errcta:active,.act:active,.qk:active,.hs:active,.modecard:active,.spotw:active,.ptcell:active,.agc:active,.kp:active,.sitem:active,.bin:not([disabled]):active,.cgap:active,.iconbtn:active,.backbtn:active,.rankcard:active,.tile:active,.arrec:active,.lvpath li button:not([disabled]):active,.sheet-close:active,.bstep button:active,.seg button:active,#fab:active,.tb-in:active,.subjcard:active{transform:scale(.955);transition-duration:.09s}
   #tabs button:active svg{transform:scale(.82);transition-duration:.09s}
   .pop{animation:pop .45s var(--spring)}
   @keyframes pop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
@@ -560,12 +580,12 @@ details.content-d>summary svg{width:17px;height:17px;color:var(--pri)}
   .boss.hit .boss-ic{animation:shake .4s} .boss.atk{animation:shake .4s}
   #app.enter>*{animation:rise .46s var(--out) backwards}
   #app.enter>*:nth-child(2){animation-delay:.03s} #app.enter>*:nth-child(3){animation-delay:.06s} #app.enter>*:nth-child(4){animation-delay:.09s} #app.enter>*:nth-child(5){animation-delay:.12s} #app.enter>*:nth-child(6){animation-delay:.15s} #app.enter>*:nth-child(7){animation-delay:.18s} #app.enter>*:nth-child(8){animation-delay:.21s} #app.enter>*:nth-child(9){animation-delay:.24s} #app.enter>*:nth-child(n+10){animation-delay:.27s}
-  #app.enter :is(.hubgrid,.aglist,.missions ul,.lvpath,.hh-stats,.arsum,.metrics,.quickrow)>*{animation:rise .5s var(--out) backwards}
-  #app.enter :is(.hubgrid,.aglist,.missions ul,.lvpath,.hh-stats,.arsum,.metrics,.quickrow)>*:nth-child(2){animation-delay:.1s}
-  #app.enter :is(.hubgrid,.aglist,.missions ul,.lvpath,.hh-stats,.arsum,.metrics,.quickrow)>*:nth-child(3){animation-delay:.15s}
-  #app.enter :is(.hubgrid,.aglist,.missions ul,.lvpath,.hh-stats,.arsum,.metrics,.quickrow)>*:nth-child(4){animation-delay:.2s}
-  #app.enter :is(.hubgrid,.aglist,.missions ul,.lvpath,.hh-stats,.arsum,.metrics,.quickrow)>*:nth-child(5){animation-delay:.25s}
-  #app.enter :is(.hubgrid,.aglist,.missions ul,.lvpath,.hh-stats,.arsum,.metrics,.quickrow)>*:nth-child(n+6){animation-delay:.3s}
+  #app.enter :is(.hubgrid,.aglist,.subj .inner,.missions ul,.lvpath,.hh-stats,.arsum,.metrics,.quickrow)>*{animation:rise .5s var(--out) backwards}
+  #app.enter :is(.hubgrid,.aglist,.subj .inner,.missions ul,.lvpath,.hh-stats,.arsum,.metrics,.quickrow)>*:nth-child(2){animation-delay:.1s}
+  #app.enter :is(.hubgrid,.aglist,.subj .inner,.missions ul,.lvpath,.hh-stats,.arsum,.metrics,.quickrow)>*:nth-child(3){animation-delay:.15s}
+  #app.enter :is(.hubgrid,.aglist,.subj .inner,.missions ul,.lvpath,.hh-stats,.arsum,.metrics,.quickrow)>*:nth-child(4){animation-delay:.2s}
+  #app.enter :is(.hubgrid,.aglist,.subj .inner,.missions ul,.lvpath,.hh-stats,.arsum,.metrics,.quickrow)>*:nth-child(5){animation-delay:.25s}
+  #app.enter :is(.hubgrid,.aglist,.subj .inner,.missions ul,.lvpath,.hh-stats,.arsum,.metrics,.quickrow)>*:nth-child(n+6){animation-delay:.3s}
   @keyframes rise{from{opacity:0;transform:translateY(14px)}}
   #app.enter .hazard{animation:barin .7s var(--out) .12s backwards}
   @keyframes barin{from{transform:scaleX(0)}}
@@ -6257,6 +6277,20 @@ function metricsChart(n){
   return '<div class="wchart"><div class="wc-h"><b>XP por mês</b><span class="small muted">últimos 12 meses</span></div><div class="wc-bars">'+months.map(x=>{ const cur=x.y===now.getFullYear()&&x.m===now.getMonth(); return '<div class="wc-col'+(cur?' today':'')+(x.v?' has':'')+'"><span class="wc-v">'+(x.v||'')+'</span><i style="height:'+Math.max(3,Math.round(x.v/mx*100))+'%"></i><span class="wc-d">'+new Date(x.y,x.m,1).toLocaleDateString('pt-BR',{month:'short'}).replace('.','')+'</span></div>'; }).join('')+'</div></div>';
 }
 function bigStat(label,val,sub){ return '<div class="bstat"><b>'+val+'</b><span>'+esc(label)+'</span>'+(sub?'<em>'+esc(sub)+'</em>':'')+'</div>'; }
+/* mapa de atividade: um quadradinho por dia, mais escuro quanto mais XP — o "ano do GitHub" do seu estudo */
+function heatmapHTML(weeks){
+  weeks=weeks||14; const n=weeks*7, k0=today(), days=[]; for(let i=n-1;i>=0;i--) days.push(addDays(k0,-i));
+  const vals=days.map(dk=>(S.days[dk]||{}).xp||0), mx=Math.max(1,...vals), active=vals.filter(v=>v>0).length;
+  const lvl=v=>v<=0?0:v<mx*0.25?1:v<mx*0.5?2:v<mx*0.75?3:4;
+  const cols=[]; for(let i=0;i<days.length;i+=7) cols.push(days.slice(i,i+7));
+  const MS=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  let lastM=-1;
+  let h='<div class="heatwrap"><div class="wc-h"><b>Seus últimos '+n+' dias</b><span class="small muted">'+cuN(active)+' dia'+(active===1?'':'s')+' ativo'+(active===1?'':'s')+'</span></div><div class="heat">'+cols.map((col,ci)=>{
+    const d0=dateOf(col[0]), showM=d0.getMonth()!==lastM; lastM=d0.getMonth();
+    return '<div class="heat-col" style="animation-delay:'+(ci*14)+'ms"><span class="heat-m">'+(showM?MS[d0.getMonth()]:'')+'</span>'+col.map(dk=>{ const v=(S.days[dk]||{}).xp||0, l=lvl(v), d=dateOf(dk), lbl=d.toLocaleDateString('pt-BR')+': '+(v?v+' XP':'sem estudo');
+      return '<i class="hd l'+l+(dk===k0?' today':'')+'" role="img" aria-label="'+esc(lbl)+'" title="'+esc(lbl)+'"></i>'; }).join('')+'</div>'; }).join('')+'</div></div>';
+  return h;
+}
 function sheetMetrics(){
   const range=UI.metRange||7, T0=statsRange(1), R=statsRange(range), fd=totalFlashDue();
   let h='<h2 id="sheetTitle">Métricas</h2><h3>Hoje</h3><div class="bigstats">'+bigStat('XP',cuN(T0.xp),'meta: '+goalXP())+bigStat('Tempo estudado',fmtMin(T0.min))+bigStat('Questões',cuN(T0.q),T0.q?pct(T0.a,T0.q)+' de acerto':'')+bigStat('Flashcards',cuN(T0.c),fd?fd+' vencendo agora':'')+'</div>';
@@ -6283,14 +6317,16 @@ function viewMapa(){
   h+='<button class="rankcard btnlike" data-a="rankOpen"><span class="insig">'+insigniaSVG(P.idx)+'</span><div><b>'+esc(PATENTES[P.idx])+' · Nível '+lv.L+'</b><span class="small muted">'+(P.next!=null?'Próxima patente com '+Math.round(P.next*100)+'% de domínio':'Patente máxima')+'</span><div class="bar"><i style="width:'+Math.round(P.within*100)+'%"></i></div></div></button>';
   h+='<div class="row" style="margin-top:12px"><button class="btn" data-a="aiPainel">'+ICO.spark+' Análise do Claude</button><button class="btn ghost" data-a="achOpen">'+ICO.medal+' Conquistas '+Object.keys(S.ach).length+'/'+ACH.length+'</button><button class="btn ghost" data-a="metOpen">Métricas</button></div>';
   h+='<div class="aibox" id="ai-painel"'+(AIR.painel?'':' hidden')+'>'+aiBox('painel')+'</div>';
+  h+=heatmapHTML(14);
   h+=metricsChart(14);
   h+='<h2>Matérias</h2>';
   Object.keys(BLOCOS).forEach(bid=>{
     const ss=SUBJECTS.filter(s=>s.bloco===bid); if(!ss.length) return;
     const q=ss.reduce((a,s)=>a+s.q,0), avg=ss.reduce((a,s)=>a+subjMastery(s.id),0)/ss.length, bcl=mCls(avg);
-    h+='<details class="subj" open><summary><span class="sn"><i class="mdot" style="background:var(--'+bcl+')"></i>'+esc(BLOCOS[bid])+'</span><span class="sq">'+q+' questões · '+Math.round(avg*100)+'%</span></summary><div class="inner"><ul class="list">';
-    ss.forEach(s=>{ const m=subjMastery(s.id), cl=mCls(m); h+='<li><button class="subjrow" data-a="subjOpen" data-s="'+s.id+'"><span class="sr-top"><span class="nm"><i class="mdot" style="background:var(--'+cl+')"></i>'+esc(s.nome)+'</span><span class="lvl '+cl+'">'+nivel(m)+'</span></span><span class="mbar"><i style="width:'+Math.round(m*100)+'%;background:var(--'+cl+')"></i></span><span class="small muted">'+s.q+' questões na prova · '+Math.round(m*100)+'% de domínio · acerto estimado '+Math.round(subjProj(s.id)*100)+'%</span></button></li>'; });
-    h+='</ul></div></details>';
+    h+='<details class="subj" open><summary><span class="sn"><i class="mdot" style="background:var(--'+bcl+')"></i>'+esc(BLOCOS[bid])+'</span><span class="sq">'+q+' questões · '+Math.round(avg*100)+'%</span></summary><div class="inner">';
+    ss.forEach(s=>{ const m=subjMastery(s.id), cl=mCls(m), mono=(s.nome.replace(/[^A-ZÀ-ÖØ-Ý]/g,'')||s.nome.toUpperCase()).slice(0,2);
+      h+='<button class="subjcard" data-a="subjOpen" data-s="'+s.id+'"><span class="subjcard-ic" style="background:var(--'+cl+')">'+esc(mono)+'</span><span class="subjcard-b"><span class="nm">'+esc(s.nome)+'</span><span class="mbar"><i style="width:'+Math.round(m*100)+'%;background:var(--'+cl+')"></i></span><span class="meta">'+s.q+' questões na prova · acerto estimado '+Math.round(subjProj(s.id)*100)+'%</span></span><span class="lvl '+cl+'">'+nivel(m)+'</span></button>'; });
+    h+='</div></details>';
   });
   const top=ranked().slice(0,5);
   h+='<h2>Próximos na fila</h2><p class="small muted">Os tópicos com mais peso na prova e menos domínio seu, na ordem em que valem mais a pena agora.</p><ul class="list">'+top.map(r=>{ const st=T(r.t.id); return '<li><button class="trow" data-a="topic" data-t="'+r.t.id+'">'+ladder(st.rung)+'<span><span class="nm">'+esc(r.t.nome)+'</span><br><span class="meta">'+esc(reason(r.s,r.t))+'</span></span><span class="pill">'+RUNGS[st.rung]+'</span></button></li>'; }).join('')+'</ul>';
@@ -7849,7 +7885,7 @@ function jnFeatureCard(){
 }
 /* ===================== INÍCIO =====================
    Por último, depois de todos os módulos carregados (a Jornada vem depois das ações). */
-if(window.__TEST__) window.__app={JN_CAP,JN_GEO,JN_GLOSS,JN_GTERMS,jnState,jnStartCap,jnFmt,jnMastery,jnPendingWrong,jnReviewAll,tutor,ARENA,AR_BY,arMake,arAsChoice,arValid,arOffline,arStart,arCur,localQuiz,offlineQuestion,SUBJ,get S(){ return S; },today,commit,SYNC,mergeState,migrate,sectionsOf,A,render,xpTotal,levelFromXP,missions,streak};
+if(window.__TEST__) window.__app={JN_CAP,JN_GEO,JN_GLOSS,JN_GTERMS,jnState,jnStartCap,jnFmt,jnMastery,jnPendingWrong,jnReviewAll,tutor,ARENA,AR_BY,arMake,arAsChoice,arValid,arOffline,arStart,arCur,localQuiz,offlineQuestion,SUBJ,get S(){ return S; },today,commit,SYNC,mergeState,migrate,sectionsOf,A,render,xpTotal,levelFromXP,missions,streak,gainXP,errFromQ};
 boot();
 })();
 </script>
