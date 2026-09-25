@@ -41,6 +41,28 @@ function jnStarted(){ return JN_CAP.some(c=>{ const r=jnPeek(c.id); return r.p>0
 function jnConquered(){ const s=new Set(); JN_CAP.forEach(c=>{ if(jnPeek(c.id).d) (c.reg||[]).forEach(r=>s.add(r)); }); return [...s]; }
 function jnIsQ(s){ return !!(s&&(s.q||s.qm||s.qo)); }
 
+/* ---------- glossário: termos tocáveis no texto ---------- */
+/* casa cada forma exata usada no texto (JN_GTERMS) com a chave do JN_GLOSS; a mais longa vence,
+   e um limite de letra (com acento) dos dois lados evita casar pedaço de outra palavra */
+function jnGlossRegex(){
+  if(jnGlossRegex.rx) return jnGlossRegex.rx;
+  const LETTER='A-Za-zÀ-ÖØ-öø-ÿ', esc=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  const keys=Object.keys(JN_GTERMS).sort((a,b)=>b.length-a.length).map(esc);
+  return jnGlossRegex.rx=new RegExp('(?<!['+LETTER+'])('+keys.join('|')+')(?!['+LETTER+'])','g');
+}
+/* aplica o glossário sobre HTML já pronto (de fmtText: só texto, <br> e <strong>), tocando só a
+   primeira aparição de cada termo para não poluir o texto de botões */
+function jnLinkTerms(html){
+  let rx; try{ rx=jnGlossRegex(); }catch(e){ return html; }
+  const seen=new Set();
+  return html.split(/(<br>|<\/?strong>)/).map(seg=>{
+    if(seg==='<br>'||seg==='<strong>'||seg==='</strong>') return seg;
+    return seg.replace(rx,m=>{ const key=JN_GTERMS[m]; if(!key||seen.has(key)) return m; seen.add(key);
+      return '<button class="jnterm" type="button" data-a="jnTermTap" data-term="'+key+'">'+m+'</button>'; });
+  }).join('');
+}
+function jnFmt(t){ return t==null||t===''?'':jnLinkTerms(fmtText(t)); }
+
 /* ---------- mapa ---------- */
 const JN_BASE={z:'pr',l:['rios'],r:[],r2:[],c:[],rt:[],a:[],rv:[],lg:null};
 function jnState(cap,si){
@@ -110,6 +132,64 @@ function jnLegend(st){
   if(jnHas(st.l,'tord')) it.push('<span><i class="lg-tord"></i>Linha de Tordesilhas (aprox.)</span>');
   return it.length?'<div class="jnleg">'+it.join('')+'</div>':'';
 }
+
+/* ---------- balão do glossário ---------- */
+/* JNTIP guarda o termo aberto no momento. pinned=true veio de um toque/clique e só fecha por ação
+   explícita; pinned=false veio de um hover no computador e fecha ao tirar o mouse. */
+const JNTIP={open:false,term:null,pinned:false,hideT:null};
+const JN_HOVERFINE=(()=>{ try{ return matchMedia('(hover:hover) and (pointer:fine)').matches; }catch(e){ return false; } })();
+function jnTipRender(key){
+  const g=JN_GLOSS[key]; if(!g) return '';
+  return '<button class="jntip-x" data-a="jnTipClose" aria-label="Fechar">'+ICO.x+'</button><b>'+esc(g.n)+'</b><p>'+esc(g.d)+'</p><button class="linkbtn small" data-a="jnGlossOpen" data-k="'+key+'">Ver no Glossário completo</button>';
+}
+function jnTipPosition(el,anchor){
+  const r=anchor.getBoundingClientRect();
+  el.style.left='12px'; el.style.top='-999px';
+  const tw=el.offsetWidth, th=el.offsetHeight;
+  let x=r.left+r.width/2-tw/2; x=Math.max(12,Math.min(x,window.innerWidth-12-tw));
+  let y=r.bottom+10;
+  if(y+th>window.innerHeight-12) y=Math.max(8,r.top-th-10);
+  el.style.left=x+'px'; el.style.top=y+'px';
+}
+function jnTipShow(key,anchor,pinned){
+  if(!JN_GLOSS[key]||!anchor) return;
+  const el=$('#jntip'); if(!el) return;
+  clearTimeout(JNTIP.hideT);
+  el.innerHTML=jnTipRender(key); el.hidden=false; el.classList.remove('show');
+  jnTipPosition(el,anchor);
+  void el.offsetWidth;
+  el.classList.add('show');
+  JNTIP.open=true; JNTIP.term=key; JNTIP.pinned=!!pinned;
+}
+function jnTipHide(force){
+  if(JNTIP.pinned&&!force) return;
+  const el=$('#jntip'); JNTIP.open=false; JNTIP.pinned=false; JNTIP.term=null;
+  if(!el||el.hidden) return;
+  el.classList.remove('show'); clearTimeout(JNTIP.hideT);
+  JNTIP.hideT=setTimeout(()=>{ if(!JNTIP.open) el.hidden=true; },200);
+}
+if(JN_HOVERFINE){
+  let jnHoverT=null;
+  document.addEventListener('pointerover',e=>{
+    const t=e.target.closest&&e.target.closest('.jnterm'); if(!t) return;
+    clearTimeout(jnHoverT); jnHoverT=setTimeout(()=>{ if(!JNTIP.pinned) jnTipShow(t.dataset.term,t,false); },160);
+  });
+  document.addEventListener('pointerout',e=>{
+    const t=e.target.closest&&e.target.closest('.jnterm'); if(!t) return; clearTimeout(jnHoverT);
+    const to=e.relatedTarget&&e.relatedTarget.closest&&(e.relatedTarget.closest('#jntip')||e.relatedTarget.closest('.jnterm'));
+    if(!to&&!JNTIP.pinned) jnTipHide(false);
+  });
+  const tipEl=document.getElementById('jntip');
+  if(tipEl) tipEl.addEventListener('pointerleave',e=>{ const to=e.relatedTarget&&e.relatedTarget.closest&&e.relatedTarget.closest('.jnterm'); if(!to&&!JNTIP.pinned) jnTipHide(false); });
+}
+document.addEventListener('click',e=>{
+  if(!JNTIP.open) return;
+  if(e.target.closest&&(e.target.closest('.jnterm')||e.target.closest('#jntip'))) return;
+  jnTipHide(true);
+},true);
+window.addEventListener('scroll',()=>{ if(JNTIP.open) jnTipHide(true); },{passive:true,capture:true});
+window.addEventListener('resize',()=>{ if(JNTIP.open) jnTipHide(true); });
+
 /* narração opcional (voz do aparelho): lê cada cena uma vez, ao entrar nela */
 function jnHush(){ try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){} }
 /* voz: escolhe a mais natural do aparelho (neurais/online/"premium" primeiro) e lê frase por frase,
@@ -133,7 +213,7 @@ function jnNarrate(){
 }
 /* movimento de câmera entre cenas: a transformação sai do enquadramento anterior */
 function jnAfter(root){
-  if(root&&root.id==='app') jnNarrate();
+  if(root&&root.id==='app'){ jnNarrate(); jnTipHide(true); }
   if(REDUCED||!root) return;
   root.querySelectorAll('.jz').forEach(g=>{ const a=g.dataset.z0, b=g.dataset.z1; if(!a||a===b) return;
     const f=a.split(',').map(Number), t=b.split(',').map(Number);
@@ -186,8 +266,38 @@ function jnReview(){
 }
 function jnRevNext(){
   const J=tutor.jn; J.pos++; J.ans=null;
-  if(J.pos>=J.items.length){ jnFinish(); return; }
+  if(J.pos>=J.items.length){ if(J.gen) jnFinishGen(); else jnFinish(); return; }
   const s=J.items[J.pos].s; J.perm=s.q?shuffle(s.o.map((_,i)=>i)):null; animNext('newq'); render(); jnScrollTop();
+}
+/* ---------- revisão geral: mistura fatos de todos os capítulos concluídos ---------- */
+function jnMastery(){
+  const best={};
+  JN_CAP.forEach(c=>{ const rec=jnPeek(c.id); if(!rec.d) return; (c.reg||[]).forEach(r=>{ best[r]=Math.max(best[r]||0,rec.st||0); }); });
+  const strong=[],weak=[]; Object.keys(best).forEach(r=>(best[r]>=3?strong:weak).push(r));
+  return {strong,weak};
+}
+function jnPendingWrong(){ let n=0; JN_CAP.forEach(c=>{ const r=jnPeek(c.id); if(r.d) n+=(r.w||[]).length; }); return n; }
+function jnReviewAll(){
+  const done=JN_CAP.map((c,i)=>i).filter(i=>jnPeek(JN_CAP[i].id).d);
+  if(!done.length) return;
+  const eligible=s=>s&&(s.q||s.qm); // qo fica de fora: jnOrd só sabe editar a cena atual, não um item de revisão
+  let items=[];
+  done.forEach(i=>{ const c=JN_CAP[i], r=jnPeek(c.id); (r.w||[]).forEach(k=>{ const s=c.sc[k]; if(eligible(s)) items.push({cap:i,s,old:1}); }); });
+  items=shuffle(items);
+  if(items.length<10){
+    const pool=[]; done.forEach(i=>{ const c=JN_CAP[i], r=jnPeek(c.id); c.sc.forEach((s,k)=>{ if(eligible(s)&&(r.w||[]).indexOf(k)<0) pool.push({cap:i,s}); }); });
+    shuffle(pool).slice(0,10-items.length).forEach(x=>items.push(x));
+  }
+  items=shuffle(items).slice(0,12); if(!items.length) return;
+  clearModes(); tutor.jn={view:'rev',gen:true,items,pos:0,rok:0,res:[],combo:0,ans:null,perm:items[0].s.q?shuffle([0,1,2,3]):null};
+  animNext(); render(); jnScrollTop();
+}
+function jnFinishGen(){
+  const J=tutor.jn, n=J.items.length, acc=n?J.rok/n:1, stars=acc>=0.9?3:acc>=0.6?2:1;
+  const xp=Math.round(6*J.rok+2*(n-J.rok)); gainXP(xp);
+  J.view='genend'; J.xpEnd=xp;
+  commit(); afterAction(); FX.hold(900); animNext(); render(); window.scrollTo(0,0);
+  SND.stars(stars,false);
 }
 function jnFinish(){
   const J=tutor.jn, cap=JN_CAP[J.ci], rec=jnRec(cap.id), n=J.items.length, acc=n?J.rok/n:1;
@@ -202,17 +312,19 @@ function jnFinish(){
 }
 
 /* ---------- telas ---------- */
-function viewJornada(){ const J=tutor.jn; return J.view==='cap'?viewJnCap():J.view==='rev'?viewJnRev():J.view==='end'?viewJnEnd():viewJnHome(); }
+function viewJornada(){ const J=tutor.jn; return J.view==='cap'?viewJnCap():J.view==='rev'?viewJnRev():J.view==='end'?viewJnEnd():J.view==='genend'?viewJnGenEnd():viewJnHome(); }
 function jnHead(back,kick,title,extra){ return '<div class="ghead jnhead"><button class="backbtn" data-a="'+back+'" aria-label="Voltar">'+ICO.x+'</button><div class="jnh-t"><span class="small muted">'+kick+'</span><h2>'+title+'</h2></div>'+(extra||'')+'</div>'; }
 const JN_ATLAS_BTN='<button class="iconbtn jn-atlasbtn" data-a="jnAtlas" aria-label="Abrir o atlas do Paraná"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></svg></button>';
 function viewJnHome(){
-  const done=jnDoneN(), cur=jnCurIdx(), all=done===JN_CAP.length, capC=JN_CAP[cur], rc=jnPeek(capC.id);
+  const done=jnDoneN(), cur=jnCurIdx(), all=done===JN_CAP.length, capC=JN_CAP[cur], rc=jnPeek(capC.id), M=jnMastery(), pend=jnPendingWrong();
   let h=jnHead('jnExit','Treino · História do Paraná','Jornada do Paraná',JN_ATLAS_BTN);
-  h+='<section class="jnhero"><div class="jnmap jnmap-home">'+jnMap({z:'pr',l:['rios'],r:jnConquered(),r2:[],c:[],rt:[],a:[],rv:[]},{})+'</div>';
+  h+='<section class="jnhero"><div class="jnmap jnmap-home">'+jnMap({z:'pr',l:['rios'],r:M.strong,r2:M.weak,c:[],rt:[],a:[],rv:[]},{})+'</div>';
+  if(done>0) h+='<div class="jnleg jnleg-home"><span><i class="lg-r"></i>Domínio (3 estrelas)</span><span><i class="lg-r2"></i>Vale revisar</span></div>';
   h+='<div class="jnhero-t"><span class="jnkick">'+done+' de '+JN_CAP.length+' capítulos</span><div class="lvlbar"><i style="width:'+Math.round(100*done/JN_CAP.length)+'%"></i></div>';
   h+='<p class="small">'+(all?'Jornada completa. Refaça capítulos para caçar 3 estrelas e revise pelo atlas e pela linha do tempo.':done?'O mapa vai se pintando a cada capítulo concluído.':'A história do Paraná do zero, contada como uma história, com o mapa acendendo a cada fato.')+'</p>';
   h+='<button class="btn primary block" data-a="jnCap" data-i="'+cur+'">'+ICO.play+' '+(all?'Rever o último capítulo':(rc.p>0?'Continuar':'Começar')+': capítulo '+cur)+'</button></div></section>';
-  h+='<div class="jntools"><button class="qk" data-a="jnAtlas">'+ICO.target+'<span><b>Atlas</b><em>Mapa com camadas</em></span></button><button class="qk" data-a="jnTime">'+ICO.clock+'<span><b>Linha do tempo</b><em>Todas as datas</em></span></button><button class="qk" data-a="jnPeople">'+ICO.book+'<span><b>Personagens</b><em>Quem é quem</em></span></button></div>';
+  if(done>0) h+='<button class="jnrevcard" data-a="jnReviewAll"><span class="jnrc-ic">'+ICO.redo+'</span><span class="jnrc-t"><b>Revisão geral</b><span>'+(pend>0?pend+' fato'+(pend===1?'':'s')+' pendente'+(pend===1?'':'s')+' de capítulos concluídos':'Reforce o que já aprendeu, misturando qualquer capítulo')+'</span></span>'+ICO.arrow+'</button>';
+  h+='<div class="jntools"><button class="qk" data-a="jnAtlas">'+ICO.target+'<span><b>Atlas</b><em>Mapa com camadas</em></span></button><button class="qk" data-a="jnTime">'+ICO.clock+'<span><b>Linha do tempo</b><em>Todas as datas</em></span></button><button class="qk" data-a="jnPeople">'+ICO.book+'<span><b>Personagens</b><em>Quem é quem</em></span></button><button class="qk" data-a="jnGlossOpen">'+ICO.q+'<span><b>Glossário</b><em>'+Object.keys(JN_GLOSS).length+' termos explicados</em></span></button></div>';
   h+='<h2>Capítulos</h2><ol class="jnlist">';
   JN_CAP.forEach((c,i)=>{ const r=jnPeek(c.id), open=jnOpen(i), isCur=i===cur&&!all;
     h+='<li class="'+(r.d?'done':'')+(isCur?' cur':'')+(open?'':' locked')+'"><button data-a="jnCap" data-i="'+i+'"'+(open?'':' disabled aria-disabled="true"')+'><span class="jnn">'+(open?i:AR_LOCK)+'</span><span class="jnt"><b>'+esc(c.n)+'</b><span>'+esc(c.era)+' · '+esc(c.t)+'</span>'+(isCur&&r.p>0?'<span class="jnprog"><i style="width:'+Math.round(100*r.p/c.sc.length)+'%"></i></span>':'')+'</span>'+(r.d?arStarsHTML(r.st||0):(isCur?'<span class="pill sm">agora</span>':''))+'</button>'+(r.d?'<button class="linkbtn small jnres" data-a="jnResumo" data-i="'+i+'">Resumo para a prova</button>':'')+'</li>'; });
@@ -227,14 +339,14 @@ function jnFeedback(s,ans){
   const ok=ans.ok;
   return '<div class="gfb '+(ok?'ok':'bad')+'"><b>'+(ok?CHECK_SVG+esc(rP(['Isso!','Exato!','Boa!','Mandou bem!','Na mosca!'])):(s.qo?'Quase. A ordem certa é:':'Resposta certa'))+'</b>'+
     (!ok&&s.q?'<p class="ansline">'+esc(s.o[0])+'</p>':'')+(!ok&&s.qm?'<p class="ansline">'+esc([].concat(s.r).map(r=>JN_GEO.reg[r].n).join(' ou '))+'</p>':'')+
-    (s.qo&&!ok?'<ol class="steps">'+s.o.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol>':'')+(s.x?'<p>'+fmtText(s.x)+'</p>':'')+'</div>';
+    (s.qo&&!ok?'<ol class="steps">'+s.o.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol>':'')+(s.x?'<p>'+jnFmt(s.x)+'</p>':'')+'</div>';
 }
 function jnQuestionHTML(s,J,act){
   const ans=J.ans; let h='';
   if(s.lb) h+='<span class="revtag">Lembra?</span>';
-  if(s.q){ h+='<div class="jnq"><b>'+fmtText(s.q)+'</b></div>'+jnOptsHTML(s,J.perm,ans,act); }
-  else if(s.qm){ h+='<div class="jnq"><b>'+fmtText(s.qm)+'</b><span class="small muted jnhint">'+ICO.target+' Toque no mapa</span></div>'; }
-  else if(s.qo){ const O=ans||{os:0,oe:0}; h+='<div class="jnq"><b>'+fmtText(s.qo)+'</b><span class="small muted jnhint">Toque na ordem, do primeiro ao último</span></div>';
+  if(s.q){ h+='<div class="jnq"><b>'+jnFmt(s.q)+'</b></div>'+jnOptsHTML(s,J.perm,ans,act); }
+  else if(s.qm){ h+='<div class="jnq"><b>'+jnFmt(s.qm)+'</b><span class="small muted jnhint">'+ICO.target+' Toque no mapa</span></div>'; }
+  else if(s.qo){ const O=ans||{os:0,oe:0}; h+='<div class="jnq"><b>'+jnFmt(s.qo)+'</b><span class="small muted jnhint">Toque na ordem, do primeiro ao último</span></div>';
     h+='<ol class="jnord">'+s.o.slice(0,O.os).map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol>';
     if(!O.done) h+='<div class="optlist">'+J.perm.filter(i=>i>=O.os).map(i=>'<button class="alt'+(O.bad===i?' wrong':'')+'" data-a="jnOrd" data-i="'+i+'"><span class="ot">'+esc(s.o[i])+'</span></button>').join('')+'</div>'; }
   return h+jnFeedback(s,ans);
@@ -247,7 +359,7 @@ function viewJnCap(){
   h+='<div class="jnbar"><i style="width:'+Math.round(100*(J.si+1)/n)+'%"></i></div>';
   const quiz=jnIsQ(s)&&!(J.ans&&J.ans.done);
   h+='<div class="jnstage"><div class="jnmap">'+jnMap(st,{prev:prev===st?null:prev,tap,quiz})+(s.y?'<span class="jnyear">'+esc(s.y)+'</span>':'')+'</div>'+(quiz?'':jnLegend(st))+'</div>';
-  if(s.t) h+='<div class="jncard"><button class="jnvoz'+(UI.jnVoz?' on':'')+'" data-a="jnVoz" aria-pressed="'+(UI.jnVoz?'true':'false')+'" aria-label="'+(UI.jnVoz?'Desligar a narração':'Ouvir o texto em voz alta')+'">'+ICO.sound+'</button>'+fmtText(s.t)+'</div>';
+  if(s.t) h+='<div class="jncard"><button class="jnvoz'+(UI.jnVoz?' on':'')+'" data-a="jnVoz" aria-pressed="'+(UI.jnVoz?'true':'false')+'" aria-label="'+(UI.jnVoz?'Desligar a narração':'Ouvir o texto em voz alta')+'">'+ICO.sound+'</button>'+jnFmt(s.t)+'</div>';
   if(jnIsQ(s)) h+=jnQuestionHTML(s,J,'jnAns');
   const canGo=!jnIsQ(s)||(J.ans&&J.ans.done), last=J.si===n-1;
   if(canGo) h+='<button class="btn primary block nextbtn" data-a="jnNext">'+(last?'Revisão do capítulo':'Continuar')+' <kbd>Enter</kbd></button>';
@@ -255,12 +367,12 @@ function viewJnCap(){
   return h;
 }
 function viewJnRev(){
-  const J=tutor.jn, cap=JN_CAP[J.ci], it=J.items[J.pos];
+  const J=tutor.jn, it=J.items[J.pos];
   if(!it) return '';
   const s=it.s, st=s.qm?jnState(JN_CAP[it.cap],JN_CAP[it.cap].sc.indexOf(s)):null;
-  let h=jnHead('jnHome','Capítulo '+J.ci+' · revisão','Revisão: '+esc(cap.n));
+  let h=J.gen?jnHead('jnHome','Treino · História do Paraná','Revisão geral'):jnHead('jnHome','Capítulo '+J.ci+' · revisão','Revisão: '+esc(JN_CAP[J.ci].n));
   h+='<div class="segs">'+J.items.map((_,i)=>'<i class="'+(i<J.pos||(i===J.pos&&J.ans&&J.ans.done)?(J.res&&J.res[i]===false?'bad':'ok'):(i===J.pos?'cur':''))+'"></i>').join('')+'</div>';
-  if(it.old) h+='<span class="revtag">Do capítulo '+it.cap+': '+esc(JN_CAP[it.cap].n)+'</span>';
+  if(J.gen||it.old) h+='<span class="revtag">Do capítulo '+it.cap+': '+esc(JN_CAP[it.cap].n)+'</span>';
   if(s.qm){ let tap=J.ans&&J.ans.done?{right:[].concat(s.r),bad:J.ans.ok?null:J.ans.r}:{act:'jnTap'}; h+='<div class="jnstage"><div class="jnmap">'+jnMap(st,{tap})+'</div></div>'; }
   h+=jnQuestionHTML(s,J,'jnAns');
   if(J.ans&&J.ans.done) h+='<button class="btn primary block nextbtn" data-a="jnRevNext">'+(J.pos+1<J.items.length?'Próxima':'Ver resultado')+' <kbd>Enter</kbd></button>';
@@ -272,9 +384,17 @@ function viewJnEnd(){
   h+='<div class="gend arend">'+arStarsHTML(J.stars)+'<div class="gscore">'+J.rok+'<small>/'+n+'</small></div><p><b>'+(J.stars===3?'Revisão perfeita!':J.stars>=2?'Muito bem!':J.stars===1?'Capítulo concluído.':'Capítulo concluído. Vale refazer a revisão.')+'</b></p><p class="small muted">+'+J.xpEnd+' XP no capítulo'+(J.n?' · '+J.ok+' de '+J.n+' certas na história':'')+'</p></div>';
   if(J.first){ const now=jnConquered(); h+='<div class="jnmap jnmap-end">'+jnMap({z:'pr',l:['rios'],r:now,r2:[],c:[],rt:[],a:[],rv:[]},{prev:{z:'pr',r:J.prevReg}})+'</div>'; }
   if(J.unl!=null) h+='<div class="unlockbox">'+ICO.up+'<div><b>Capítulo '+J.unl+' liberado</b><span>'+esc(JN_CAP[J.unl].n)+': '+esc(JN_CAP[J.unl].t)+'</span></div></div>';
-  h+='<h3>Para levar para a prova</h3><ul class="jnres">'+cap.res.map(x=>'<li>'+fmtText(x)+'</li>').join('')+'</ul>';
-  if(cap.cur&&cap.cur.length) h+='<h3>Curiosidades</h3><ul class="jnres jncur">'+cap.cur.map(x=>'<li>'+fmtText(x)+'</li>').join('')+'</ul>';
+  h+='<h3>Para levar para a prova</h3><ul class="jnres">'+cap.res.map(x=>'<li>'+jnFmt(x)+'</li>').join('')+'</ul>';
+  if(cap.cur&&cap.cur.length) h+='<h3>Curiosidades</h3><ul class="jnres jncur">'+cap.cur.map(x=>'<li>'+jnFmt(x)+'</li>').join('')+'</ul>';
   h+='<div class="stack">'+(nx!=null?'<button class="btn primary block" data-a="jnCap" data-i="'+nx+'">'+ICO.play+' Capítulo '+nx+': '+esc(JN_CAP[nx].n)+'</button>':'')+'<button class="btn block" data-a="jnHome">Voltar à Jornada</button>'+(J.stars<3?'<button class="btn ghost block" data-a="jnRedoRev">Refazer a revisão</button>':'')+'</div>';
+  return h;
+}
+function viewJnGenEnd(){
+  const J=tutor.jn, n=J.items.length, acc=n?J.rok/n:1, stars=acc>=0.9?3:acc>=0.6?2:1, pend=jnPendingWrong();
+  let h=jnHead('jnHome','Treino · História do Paraná','Revisão geral');
+  h+='<div class="gend arend">'+arStarsHTML(stars)+'<div class="gscore">'+J.rok+'<small>/'+n+'</small></div><p><b>'+(stars===3?'Domínio em dia!':stars===2?'Muito bem!':'Vale repetir em breve.')+'</b></p><p class="small muted">+'+J.xpEnd+' XP</p></div>';
+  h+='<p class="small muted">'+(pend>0?pend+' fato'+(pend===1?'':'s')+' ainda pendente'+(pend===1?'':'s')+' de revisão, de capítulos já concluídos.':'Nenhum fato pendente agora. Bom trabalho!')+'</p>';
+  h+='<div class="stack">'+(pend>0?'<button class="btn primary block" data-a="jnReviewAll">'+ICO.redo+' Revisar de novo</button>':'')+'<button class="btn block" data-a="jnHome">Voltar à Jornada</button></div>';
   return h;
 }
 
@@ -287,7 +407,7 @@ function sheetJnAtlas(){
   let h='<h2 id="sheetTitle">Atlas do Paraná</h2><p class="small muted">Toque numa região para ler sobre ela. Ligue camadas e caminhos para ver as rotas de cada época.</p>';
   h+='<div class="jnmap jnmap-atlas">'+jnMap(st,{atlas:true,tap:{act:'jnAtlasSel'},prev:a.pz&&a.pz!==a.z?Object.assign({},st,{z:a.pz}):null})+'</div>'; a.pz=null;
   if(a.sel){ const caps=JN_CAP.map((c,i)=>i<JN_CAP.length-1&&((c.reg||[]).indexOf(a.sel)>=0||c.sc.some(s=>s.m&&s.m.r&&s.m.r.length<=5&&jnHas(s.m.r,a.sel)))?i:-1).filter(i=>i>=0);
-    h+='<div class="jninfo"><b>'+esc(G.reg[a.sel].n)+'</b><p>'+esc(JN_INFO[a.sel]||'')+'</p>'+(caps.length?'<p class="small muted">Aparece nos capítulos: '+caps.map(i=>'<button class="linkbtn small" data-a="jnResumo" data-i="'+i+'">'+i+'. '+esc(JN_CAP[i].n)+'</button>').join(' · ')+'</p>':'')+'</div>'; }
+    h+='<div class="jninfo"><b>'+esc(G.reg[a.sel].n)+'</b><p>'+jnFmt(JN_INFO[a.sel]||'')+'</p>'+(caps.length?'<p class="small muted">Aparece nos capítulos: '+caps.map(i=>'<button class="linkbtn small" data-a="jnResumo" data-i="'+i+'">'+i+'. '+esc(JN_CAP[i].n)+'</button>').join(' · ')+'</p>':'')+'</div>'; }
   h+='<div class="flabel">Enquadramento</div><div class="chips">'+['pr','leste','litoral','cg','norte','centro','oeste','sul','wide'].map(z=>chip('jnAtlasZ',z,a.z===z,JN_ZN[z])).join('')+'</div>';
   h+='<div class="flabel">Camadas</div><div class="chips">'+[['regioes','Nomes das regiões'],['rios','Rios'],['relevo','Relevo'],['cidades','Cidades'],['vizinhos','Vizinhos'],['tord','Tordesilhas']].map(([k,n])=>chip('jnAtlasL',k,L.indexOf(k)>=0,n)).join('')+'</div>';
   h+='<div class="flabel">Caminhos e frentes</div><div class="chips">'+Object.keys(JN_RTN).map(k=>chip('jnAtlasRt',k,a.rt.indexOf(k)>=0,JN_RTN[k])).join('')+'</div>';
@@ -304,16 +424,24 @@ function sheetJnTime(){
 }
 function sheetJnPeople(){
   let h='<h2 id="sheetTitle">Personagens</h2><p class="small muted">Quem é quem na história do Paraná, na ordem em que aparecem.</p>';
-  JN_CAP.forEach((c,i)=>{ if(!c.pers||!c.pers.length) return; h+='<h3>'+i+'. '+esc(c.n)+'</h3><ul class="jnpeople">'+c.pers.map(([n,d])=>'<li><b>'+esc(n)+'</b><span>'+esc(d)+'</span></li>').join('')+'</ul>'; });
+  JN_CAP.forEach((c,i)=>{ if(!c.pers||!c.pers.length) return; h+='<h3>'+i+'. '+esc(c.n)+'</h3><ul class="jnpeople">'+c.pers.map(([n,d])=>'<li><b>'+esc(n)+'</b><span>'+jnFmt(d)+'</span></li>').join('')+'</ul>'; });
   openSheet(h);
 }
 function sheetJnResumo(i){
   const c=JN_CAP[i]; if(!c) return;
-  let h='<h2 id="sheetTitle">'+i+'. '+esc(c.n)+'</h2><p class="small muted">'+esc(c.era)+' · '+esc(c.t)+'</p><ul class="jnres">'+c.res.map(x=>'<li>'+fmtText(x)+'</li>').join('')+'</ul>';
+  let h='<h2 id="sheetTitle">'+i+'. '+esc(c.n)+'</h2><p class="small muted">'+esc(c.era)+' · '+esc(c.t)+'</p><ul class="jnres">'+c.res.map(x=>'<li>'+jnFmt(x)+'</li>').join('')+'</ul>';
   if(c.tl&&c.tl.length) h+='<h3>Datas</h3><ul class="jntl">'+c.tl.map(([y,t])=>'<li><b>'+esc(y)+'</b><span>'+esc(t)+'</span></li>').join('')+'</ul>';
-  if(c.cur&&c.cur.length) h+='<h3>Curiosidades</h3><ul class="jnres jncur">'+c.cur.map(x=>'<li>'+fmtText(x)+'</li>').join('')+'</ul>';
+  if(c.cur&&c.cur.length) h+='<h3>Curiosidades</h3><ul class="jnres jncur">'+c.cur.map(x=>'<li>'+jnFmt(x)+'</li>').join('')+'</ul>';
   if(jnOpen(i)) h+='<div class="row" style="margin-top:12px"><button class="btn primary block" data-a="jnCap" data-i="'+i+'">'+(jnPeek(c.id).d?'Refazer o capítulo':'Abrir o capítulo')+'</button></div>';
   openSheet(h);
+}
+function sheetJnGloss(focusKey){
+  const items=Object.keys(JN_GLOSS).map(k=>Object.assign({k},JN_GLOSS[k])).sort((a,b)=>a.n.localeCompare(b.n,'pt'));
+  let h='<h2 id="sheetTitle">Glossário do Paraná</h2><p class="small muted">'+items.length+' termos que aparecem na Jornada. No texto de cada cena, os termos com um pontilhado embaixo abrem esta mesma explicação na hora — é só tocar (ou passar o mouse, no computador).</p>';
+  h+='<input id="glSearch" placeholder="Buscar um termo…">';
+  h+='<div id="glList">'+items.map(it=>'<div class="jngitem" id="gl-'+it.k+'" data-k="'+esc((it.n+' '+it.d).toLowerCase())+'"><b>'+esc(it.n)+'</b><p>'+esc(it.d)+'</p></div>').join('')+'</div>';
+  openSheet(h,{key:'jnGloss'});
+  if(focusKey) setTimeout(()=>{ const el=$('#sheetBody #gl-'+focusKey); if(!el) return; el.scrollIntoView({block:'center'}); el.classList.add('hl'); setTimeout(()=>el.classList.remove('hl'),1600); },70);
 }
 
 /* ---------- ações ---------- */
@@ -349,10 +477,15 @@ const JN_A={
   jnVoz:()=>{ UI.jnVoz=!UI.jnVoz; saveUI(); jnNarrate.k=null; if(!UI.jnVoz) jnHush(); render(); toast(UI.jnVoz?'Narração ligada: cada cena é lida em voz alta.':'Narração desligada.'); },
   jnTime:()=>sheetJnTime(),
   jnPeople:()=>sheetJnPeople(),
-  jnResumo:b=>sheetJnResumo(+b.dataset.i)
+  jnResumo:b=>sheetJnResumo(+b.dataset.i),
+  jnReviewAll:()=>jnReviewAll(),
+  jnTermTap:b=>{ const key=b.dataset.term; if(JNTIP.open&&JNTIP.term===key&&JNTIP.pinned){ jnTipHide(true); return; } jnTipShow(key,b,true); SND.tap(); },
+  jnTipClose:()=>jnTipHide(true),
+  jnGlossOpen:b=>{ jnTipHide(true); sheetJnGloss(b&&b.dataset?b.dataset.k:null); }
 };
 Object.assign(A,JN_A);
 function jnKeydown(e,k,num){
+  if(document.activeElement&&document.activeElement.classList&&document.activeElement.classList.contains('jnterm')) return false;
   const J=tutor.jn; if(!J||UI.tab!=='tutor') return false;
   if(J.view==='cap'){ const s=JN_CAP[J.ci].sc[J.si];
     if(s.q&&!J.ans&&num>=0&&num<4){ JN_A.jnAns({dataset:{j:num}}); return true; }
@@ -365,6 +498,6 @@ function jnKeydown(e,k,num){
 }
 /* cartão de destaque no Treino e na aba de História da Arena */
 function jnFeatureCard(){
-  const done=jnDoneN(), cur=jnCurIdx(), r=jnPeek(JN_CAP[cur].id), all=done===JN_CAP.length;
-  return '<button class="jnfeat" data-a="jnOpen"><span class="jnf-t"><em>Novo · História do Paraná</em><b>Jornada do Paraná</b><span>'+(all?'Completa. Revise pelo atlas e pela linha do tempo.':done||r.p?'Capítulo '+cur+' de '+(JN_CAP.length-1)+': '+esc(JN_CAP[cur].n):'Do zero, contada como história, com o mapa acendendo a cada fato.')+'</span><span class="jnf-go">'+(done||r.p?'Continuar':'Começar')+' '+ICO.arrow+'</span></span><span class="jnf-map">'+jnMap({z:'pr',l:[],r:jnConquered(),r2:[],c:[],rt:[],a:[],rv:[]},{mini:true})+'</span></button>';
+  const done=jnDoneN(), cur=jnCurIdx(), r=jnPeek(JN_CAP[cur].id), all=done===JN_CAP.length, M=jnMastery();
+  return '<button class="jnfeat" data-a="jnOpen"><span class="jnf-t"><em>Novo · História do Paraná</em><b>Jornada do Paraná</b><span>'+(all?'Completa. Revise pelo atlas e pela linha do tempo.':done||r.p?'Capítulo '+cur+' de '+(JN_CAP.length-1)+': '+esc(JN_CAP[cur].n):'Do zero, contada como história, com o mapa acendendo a cada fato.')+'</span><span class="jnf-go">'+(done||r.p?'Continuar':'Começar')+' '+ICO.arrow+'</span></span><span class="jnf-map">'+jnMap({z:'pr',l:[],r:M.strong,r2:M.weak,c:[],rt:[],a:[],rv:[]},{mini:true})+'</span></button>';
 }

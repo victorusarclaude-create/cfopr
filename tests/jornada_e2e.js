@@ -68,6 +68,54 @@ let fails=0; const ok=(c,m)=>{ console.log((c?'PASS ':'FAIL ')+m); if(!c) fails+
   await page.evaluate(()=>window.__app.A.jnTime()); await W(300); ok(await page.locator('#sheet .jntl li').count()>40,'linha do tempo com as datas');
   await page.evaluate(()=>window.__app.A.jnPeople()); await W(300); ok(await page.locator('#sheet .jnpeople li').count()>20,'personagens');
   await page.evaluate(()=>window.__app.A.closeSheet()); await W(200);
+
+  // ---------- glossário: termo tocável no texto, com pontilhado ----------
+  await page.evaluate(()=>window.__app.jnStartCap(0,5)); await W(500);
+  ok(await page.locator('.jncard .jnterm').count()>=1,'a cena tem termo tocável, com pontilhado, no texto');
+  await page.click('.jncard .jnterm'); await W(250);
+  ok(await page.evaluate(()=>{ const el=document.getElementById('jntip'); return el&&!el.hidden&&el.classList.contains('show')&&el.textContent.length>20; }),'tocar no termo abre a explicação na hora');
+  await page.keyboard.press('Escape'); await W(150);
+  ok(await page.evaluate(()=>!document.getElementById('jntip').classList.contains('show')),'Escape fecha a explicação');
+  await page.mouse.move(5,5); await W(50);
+  await page.locator('.jncard .jnterm').first().hover(); await W(350);
+  ok(await page.evaluate(()=>document.getElementById('jntip').classList.contains('show')),'passar o mouse no termo também mostra a explicação, sem precisar clicar');
+  await page.mouse.move(5,5); await W(400);
+  ok(await page.evaluate(()=>document.getElementById('jntip').hidden),'a explicação por hover fecha sozinha ao tirar o mouse');
+  await page.click('.jncard .jnterm'); await W(250);
+  const tipTerm=await page.evaluate(()=>document.getElementById('jntip').querySelector('[data-a="jnGlossOpen"]').dataset.k);
+  await page.click('#jntip [data-a="jnGlossOpen"]'); await W(400);
+  ok(await page.locator('#sheet #gl-'+tipTerm+'.hl').count()===1,'"Ver no Glossário completo" abre o glossário já na entrada certa, destacada');
+  await page.evaluate(()=>window.__app.A.closeSheet()); await W(200);
+
+  // ---------- glossário completo: lista e busca ----------
+  await page.evaluate(()=>window.__app.A.jnGlossOpen({dataset:{}})); await W(400);
+  const glTotal=await page.evaluate(()=>Object.keys(window.__app.JN_GLOSS).length);
+  ok(await page.locator('#sheet .jngitem').count()===glTotal,'glossário completo lista os '+glTotal+' termos');
+  await page.fill('#glSearch','tropeiro'); await W(150);
+  const glVisible=await page.locator('#sheet .jngitem:not([hidden])').count();
+  ok(glVisible>=1&&glVisible<glTotal,'a busca do glossário filtra os itens ('+glVisible+' de '+glTotal+')');
+  await page.evaluate(()=>window.__app.A.closeSheet()); await W(200);
+
+  // ---------- domínio por estrelas no mapa e Revisão geral ----------
+  await page.evaluate(()=>{ const S=window.__app.S; S.jn.c.c1=Object.assign({},S.jn.c.c1,{d:1,st:1}); });
+  await page.evaluate(()=>window.__app.A.jnHome()); await W(500);
+  ok(await page.locator('.jnmap-home .jn-rg.on').count()>=1,'o mapa da Jornada destaca as regiões com domínio de 3 estrelas');
+  ok(await page.locator('.jnmap-home .jn-rg.on2').count()>=1,'o mapa da Jornada marca em outra cor as regiões com menos de 3 estrelas');
+  ok(await page.locator('.jnleg-home').count()===1,'uma legenda explica as duas cores do mapa de domínio');
+  ok(await page.locator('.jnrevcard').count()===1,'o card de Revisão geral aparece depois do primeiro capítulo concluído');
+  await page.click('.jnrevcard'); await W(600);
+  ok(await page.evaluate(()=>{ const J=window.__app.tutor.jn; return J&&J.view==='rev'&&J.gen===true; }),'a Revisão geral começa misturando fatos de capítulos concluídos');
+  for(let k=0;k<20;k++){ const v=await page.evaluate(()=>{ const J=window.__app.tutor.jn; if(!J||J.view!=='rev') return null; const it=J.items[J.pos]; return {q:!!it.s.q,qo:!!it.s.qo,n:it.s.o?it.s.o.length:0,perm:J.perm,r:it.s.qm?[].concat(it.s.r):null}; });
+    if(!v) break;
+    if(v.q) await page.click('[data-a="jnAns"][data-j="'+v.perm.indexOf(0)+'"]');
+    else if(v.qo){ for(let i=0;i<v.n;i++) await page.click('[data-a="jnOrd"][data-i="'+i+'"]'); }
+    else await page.locator('.jn-rg[data-r="'+v.r[0]+'"]').dispatchEvent('click');
+    await W(70); await page.click('[data-a="jnRevNext"]'); await W(90); }
+  await W(1000);
+  ok(await page.evaluate(()=>window.__app.tutor.jn&&window.__app.tutor.jn.view==='genend'),'a Revisão geral termina numa tela própria');
+  ok(await page.evaluate(()=>window.__app.S.jn.c.c0.d===1),'o capítulo já concluído continua concluído depois da Revisão geral');
+  await page.evaluate(()=>window.__app.A.jnHome()); await W(300);
+
   // todas as cenas renderizam
   const bad=await page.evaluate(()=>{ const out=[]; const C=window.__app.JN_CAP; C.forEach((c,ci)=>{ c.sc.forEach((s,si)=>{ try{ window.__app.tutor.jn={view:'cap',ci,si,ans:null,perm:s.o?s.o.map((_,i)=>i):null,combo:0,ok:0,n:0,pm:null,pmSi:-1}; window.__app.render(); if(!document.querySelector('#app .jnmap svg')) out.push(ci+':'+si+' sem mapa'); }catch(e){ out.push(ci+':'+si+' '+e.message); } }); }); return out; });
   ok(bad.length===0,'as '+(await page.evaluate(()=>window.__app.JN_CAP.reduce((a,c)=>a+c.sc.length,0)))+' cenas renderizam '+JSON.stringify(bad.slice(0,5)));
