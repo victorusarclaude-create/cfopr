@@ -151,6 +151,7 @@ function viewArenaHome(){
   const gs=ARENA.filter(g=>g.s===sid), tl=S.topicList[sid]||[], idx=t=>{ const i=tl.findIndex(x=>x.id===t); return i<0?99:i; };
   gs.sort((a,b)=>idx(a.t)-idx(b.t));
   const lvDone=gs.reduce((a,g)=>a+arDoneLv(g.id),0), st=gs.reduce((a,g)=>a+arStarsOf(g.id),0), rec=arRecommend(sid);
+  if(sid==='hist') h+=jnFeatureCard();
   h+='<div class="arsum s-'+sid+'"><div><b>'+lvDone+'<small>/'+(gs.length*5)+'</small></b><span>níveis concluídos</span></div><div><b>'+st+'<small>/'+(gs.length*15)+'</small></b><span>estrelas</span></div><div><b>'+gs.length+'</b><span>jogos, um por tópico</span></div></div>';
   if(rec) h+='<button class="arrec" data-a="arPlay" data-g="'+rec.id+'" data-l="'+arUnl(rec.id)+'"><span class="small">Recomendado agora</span><b>'+esc(rec.nome)+' · nível '+arUnl(rec.id)+'</b><span class="small">Mais peso na prova e menos domínio seu.</span><span class="btn primary sm">Jogar</span></button>';
   h+='<div class="aglist">'+gs.map(arCard).join('')+'</div>';

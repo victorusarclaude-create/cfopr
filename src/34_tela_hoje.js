@@ -122,6 +122,7 @@ function nextStep(){
   if(fd) return {a:'smartOpen',t:'Revisar '+Math.min(fd,30)+' flashcards',s:'Revisar no dia certo é o que fixa na memória de longo prazo.',ic:ICO.cards};
   const pend=M.list.find(m=>!m.done&&m.type!=='focus');
   if(pend) return misAction(pend);
+  if(jnStarted()&&jnDoneN()<JN_CAP.length){ const ci=jnCurIdx(); return {a:'jnCap',d:{i:ci},t:'Jornada do Paraná: capítulo '+ci,s:JN_CAP[ci].n+'. '+JN_CAP[ci].t+'.',ic:ICO.book}; }
   const tid=pick(); if(tid){ const i=topicInfo(tid); return {a:'topic',d:{t:tid},t:'Avançar em '+i.t.nome,s:'É o tópico que mais vale a pena agora: '+reason(i.s,i.t)+'.',ic:ICO.target}; }
   return {a:'hubGames',t:'Treino livre',s:'Escolha um jogo por matéria.',ic:ICO.game};
 }

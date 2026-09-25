@@ -56,7 +56,7 @@ function render(){
   try{ html=v(); }catch(e){ console.error(e); html=pageHead('Ops')+'<p class="badbox">Algo deu errado nesta tela. Seus dados estão salvos.</p><button class="btn primary" data-a="panic">Voltar ao início</button>'; }
   app.innerHTML=html; restoreInputs(app,keep); DROP.clear();
   app.classList.remove('enter','newq'); if(ENTER&&!REDUCED){ void app.offsetWidth; app.classList.add(ENTER); } ENTER=null;
-  renderTabs(); mountCountUps(app); drawGTBar(); restoreFocus(sig,had);
+  renderTabs(); mountCountUps(app); jnAfter(app); drawGTBar(); restoreFocus(sig,had);
   const G=tutor.game; $('#fab').hidden=!$('#sheet').hidden||(G&&G.mode==='relampago'&&!G.done);
   pendingRender=false;
 }
@@ -359,11 +359,12 @@ document.addEventListener('input',e=>{
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){ if(!$('#celebrate').hidden){ A.celClose(); return; } if(!$('#sheet').hidden){ closeSheet(); return; } }
   const tg=e.target, typing=tg&&(tg.tagName==='TEXTAREA'||tg.tagName==='INPUT'||tg.tagName==='SELECT');
+  if((e.key==='Enter'||e.key===' ')&&tg&&tg.getAttribute&&tg.getAttribute('role')==='button'&&tg.tagName!=='BUTTON'&&tg.dataset&&tg.dataset.a){ e.preventDefault(); tg.dispatchEvent(new MouseEvent('click',{bubbles:true})); return; }
   if(typing){ if(tg.id==='convIn'&&e.key==='Enter'&&(e.ctrlKey||e.metaKey)){ e.preventDefault(); A.convSend(); } return; }
   if(!$('#sheet').hidden){ if(e.key==='Tab') trapTab(e); return; }
   if(!$('#celebrate').hidden||e.ctrlKey||e.metaKey||e.altKey) return;
   const k=e.key.toLowerCase(), num=/^[1-9]$/.test(k)?+k-1:('abcde'.indexOf(k)>=0&&k.length===1?'abcde'.indexOf(k):-1);
-  if(arKeydown(e,k,num)){ e.preventDefault(); return; }
+  if(jnKeydown(e,k,num)||arKeydown(e,k,num)){ e.preventDefault(); return; }
   const F=tutor.flash, G=tutor.game, M=tutor.sim, R=tutor.rf;
   if(UI.tab==='tutor'&&F&&!F.done&&F.pos<F.q.length){
     if(!F.revealed&&(k===' '||k==='enter')){ e.preventDefault(); A.flashFlip(); return; }
@@ -416,5 +417,3 @@ function boot(){
   SYNC.init();
   setTimeout(()=>{ if($('#sheet').hidden&&(!S.welcomed||(S.newsV||0)<NEWS_V)) sheetWelcome(); },450);
 }
-if(window.__TEST__) window.__app={tutor,ARENA,AR_BY,arMake,arAsChoice,arValid,arOffline,arStart,arCur,localQuiz,offlineQuestion,SUBJ,get S(){ return S; },today,commit,SYNC,mergeState,migrate,sectionsOf,A,render,xpTotal,levelFromXP,missions,streak};
-boot();

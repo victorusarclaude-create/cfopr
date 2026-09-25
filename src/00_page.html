@@ -725,6 +725,117 @@ details.content-d>summary svg{width:17px;height:17px;color:var(--pri)}
 .unlockbox{display:flex;gap:12px;align-items:center;margin-top:12px;padding:15px;border-radius:var(--r);background:var(--green-soft);border:1px solid color-mix(in srgb,var(--green) 40%,transparent)} .unlockbox svg{width:30px;height:30px;color:var(--green);flex:none}
 .unlockbox b{display:block} .unlockbox span{font-size:.85rem} .unlockbox.gold{background:var(--gold-soft);border-color:color-mix(in srgb,var(--star) 55%,transparent)} .unlockbox.gold svg{color:var(--gold)}
 .ansline{font-weight:700}
+/* ===== Jornada do Paraná ===== */
+:root{--map-sea:#D9E8EF;--map-land:#F7F4EC;--map-nb:#E8E4D9;--map-nbl:#D2CCBD;--map-line:#FFFFFF;--map-out:#4E5B57;--map-hl:#F4A571;--map-hl2:#C9B8F4;--map-riv:#4B8DC0;--map-rel:#8B6B3E;--map-txt:#23302C;--map-halo:#F7F4EC;--map-ok:#34C08B;--map-bad:#F07167;--map-flash:#FFE0B5;--arrh:#DC2626;--hg:194,65,12;--hc:185,28,28;--hi:4,120,87}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--map-sea:#0B1920;--map-land:#1D2825;--map-nb:#151E1C;--map-nbl:#27332F;--map-line:#0F1715;--map-out:#A8B6B1;--map-hl:#C8652F;--map-hl2:#6D58BC;--map-riv:#5DADE2;--map-rel:#D5AE73;--map-txt:#E6ECE8;--map-halo:#14201D;--map-ok:#2FA878;--map-bad:#D9534F;--map-flash:#FFB36B;--arrh:#F87171;--hg:251,146,60;--hc:248,113,113;--hi:52,211,153}}
+:root[data-theme="dark"]{--map-sea:#0B1920;--map-land:#1D2825;--map-nb:#151E1C;--map-nbl:#27332F;--map-line:#0F1715;--map-out:#A8B6B1;--map-hl:#C8652F;--map-hl2:#6D58BC;--map-riv:#5DADE2;--map-rel:#D5AE73;--map-txt:#E6ECE8;--map-halo:#14201D;--map-ok:#2FA878;--map-bad:#D9534F;--map-flash:#FFB36B;--arrh:#F87171;--hg:251,146,60;--hc:248,113,113;--hi:52,211,153}
+.rt-peabiru{--rc:#7C3AED} .rt-cabeza{--rc:#DB2777} .rt-bandeiras{--rc:#B91C1C} .rt-itupava{--rc:#0F766E} .rt-tropas{--rc:#B45309} .rt-guarapuava,.rt-palmas,.rt-missoes{--rc:#0369A1}
+.rt-graciosa{--rc:#15803D} .rt-ferrovia,.rt-ferropg,.rt-sprg{--rc:#1F2937} .rt-cafe{--rc:#7C2D12} .rt-paulistas_norte,.rt-mineiros_norte,.rt-sulistas_sudoeste,.rt-sulistas_oeste{--rc:#DC2626}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) :is(.rt-peabiru){--rc:#B69DFB} :root:not([data-theme="light"]) .rt-cabeza{--rc:#F472B6} :root:not([data-theme="light"]) .rt-bandeiras{--rc:#F87171} :root:not([data-theme="light"]) .rt-itupava{--rc:#2DD4BF} :root:not([data-theme="light"]) .rt-tropas{--rc:#FBBF24} :root:not([data-theme="light"]) :is(.rt-guarapuava,.rt-palmas,.rt-missoes){--rc:#38BDF8} :root:not([data-theme="light"]) .rt-graciosa{--rc:#4ADE80} :root:not([data-theme="light"]) :is(.rt-ferrovia,.rt-ferropg,.rt-sprg){--rc:#E5E7EB} :root:not([data-theme="light"]) .rt-cafe{--rc:#D6A26B} :root:not([data-theme="light"]) :is(.rt-paulistas_norte,.rt-mineiros_norte,.rt-sulistas_sudoeste,.rt-sulistas_oeste){--rc:#F87171}}
+:root[data-theme="dark"] .rt-peabiru{--rc:#B69DFB} :root[data-theme="dark"] .rt-cabeza{--rc:#F472B6} :root[data-theme="dark"] .rt-bandeiras{--rc:#F87171} :root[data-theme="dark"] .rt-itupava{--rc:#2DD4BF} :root[data-theme="dark"] .rt-tropas{--rc:#FBBF24} :root[data-theme="dark"] :is(.rt-guarapuava,.rt-palmas,.rt-missoes){--rc:#38BDF8} :root[data-theme="dark"] .rt-graciosa{--rc:#4ADE80} :root[data-theme="dark"] :is(.rt-ferrovia,.rt-ferropg,.rt-sprg){--rc:#E5E7EB} :root[data-theme="dark"] .rt-cafe{--rc:#D6A26B} :root[data-theme="dark"] :is(.rt-paulistas_norte,.rt-mineiros_norte,.rt-sulistas_sudoeste,.rt-sulistas_oeste){--rc:#F87171}
+.jnmap{position:relative;border-radius:20px;overflow:hidden;background:var(--map-sea);box-shadow:inset 0 0 0 1px var(--line),var(--sh1)}
+.jnsvg{display:block;width:100%;height:auto;touch-action:manipulation}
+.jn-sea{fill:var(--map-sea)}
+.jz{transform-origin:0 0;transition:transform 1.1s cubic-bezier(.65,0,.35,1)}
+.jn-nb{fill:var(--map-nb);stroke:var(--map-nbl);stroke-width:calc(.8px/var(--zs))}
+.jn-rg{fill:var(--map-land);stroke:var(--map-line);stroke-width:calc(1.3px/var(--zs));stroke-linejoin:round;transition:fill .5s var(--ease)}
+.jn-rg.on{fill:var(--map-hl)} .jn-rg.on2{fill:var(--map-hl2)}
+.jn-rg.tap{cursor:pointer;outline:none}
+.jn-rg.tap:focus-visible{fill:color-mix(in srgb,var(--pri) 30%,var(--map-land));stroke:var(--pri);stroke-width:calc(2.5px/var(--zs))}
+.jn-rg.ok{fill:var(--map-ok)} .jn-rg.bad{fill:var(--map-bad)}
+.jn-out{fill:none;stroke:var(--map-out);stroke-width:calc(1.6px/var(--zs));stroke-linejoin:round;pointer-events:none}
+.jn-riv{fill:none;stroke:var(--map-riv);stroke-width:calc(1.3px/var(--zs));stroke-linecap:round;stroke-linejoin:round;pointer-events:none} .jn-riv.hi{stroke-width:calc(3.6px/var(--zs))}
+.jn-lake{fill:var(--map-riv);opacity:.75;pointer-events:none}
+.jn-rel{fill:none;stroke:var(--map-rel);stroke-width:calc(2.6px/var(--zs));stroke-dasharray:calc(.5px/var(--zs)) calc(4.5px/var(--zs));stroke-linecap:round;pointer-events:none}
+.jn-tord{stroke:var(--ink);stroke-width:calc(1.6px/var(--zs));stroke-dasharray:calc(7px/var(--zs)) calc(5px/var(--zs));opacity:.7;pointer-events:none}
+.jn-rtc{fill:none;stroke:var(--map-halo);stroke-width:calc(6.5px/var(--zs));stroke-linecap:round;stroke-linejoin:round;opacity:.9;pointer-events:none}
+.jn-rt{fill:none;stroke:var(--rc,var(--fire));stroke-width:calc(3px/var(--zs));stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+.jn-arrh{fill:var(--arrh)}
+.jn-area{pointer-events:none;stroke-width:calc(1.6px/var(--zs))}
+.a-guaira{fill:url(#jnHatchG);stroke:rgb(var(--hg));stroke-dasharray:calc(5px/var(--zs)) calc(3px/var(--zs))} .a-contestado{fill:url(#jnHatchC);stroke:rgb(var(--hc))} .a-iguacu{fill:url(#jnHatchI);stroke:rgb(var(--hi));stroke-dasharray:calc(5px/var(--zs)) calc(3px/var(--zs))}
+.hb-g{fill:rgba(var(--hg),.10)} .hs-g{stroke:rgba(var(--hg),.6)} .hb-c{fill:rgba(var(--hc),.10)} .hs-c{stroke:rgba(var(--hc),.6)} .hb-i{fill:rgba(var(--hi),.08)} .hs-i{stroke:rgba(var(--hi),.55)}
+.jn-lb text{paint-order:stroke;stroke:var(--map-halo);stroke-width:calc(3px/var(--zs));stroke-linejoin:round;fill:var(--map-txt);font-family:var(--body);pointer-events:none}
+.jl-reg{font-size:calc(10.5px/var(--zs));font-weight:700;text-anchor:middle} .jl-reg.hi{font-size:calc(12px/var(--zs));font-weight:800}
+.jn-lb .jl-nb{font-size:calc(9px/var(--zs));font-weight:750;letter-spacing:.12em;text-anchor:middle;fill:var(--muted)}
+.jn-lb .jl-riv{font-size:calc(9px/var(--zs));font-style:italic;font-weight:650;fill:var(--map-riv)}
+.jn-lb .jl-rel{font-size:calc(8.5px/var(--zs));font-weight:750;fill:var(--map-rel)}
+.jn-lb .jl-plan{font-size:calc(9px/var(--zs));font-style:italic;font-weight:650;fill:var(--map-rel);text-anchor:middle}
+.jn-city circle{fill:var(--map-txt);stroke:var(--map-halo);stroke-width:calc(1.3px/var(--zs))}
+.jn-city text{font-size:calc(10px/var(--zs));font-weight:650}
+.jn-city.hi circle{fill:var(--fire)} .jn-city.hi text{font-weight:800;font-size:calc(11px/var(--zs))}
+.jnyear{position:absolute;left:12px;top:12px;padding:5px 12px;border-radius:999px;background:var(--forest);color:var(--on-forest);font-weight:800;font-size:.84rem;letter-spacing:-.01em;box-shadow:var(--sh2);pointer-events:none}
+.jnleg{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:9px;font-size:.78rem;color:var(--muted);line-height:1.3}
+.jnleg span{display:inline-flex;align-items:center;gap:7px}
+.jnleg i{display:inline-block;width:14px;height:10px;border-radius:3px;flex:none}
+.jnleg .lg-r{background:var(--map-hl)} .jnleg .lg-r2{background:var(--map-hl2)} .jnleg .lg-rt{height:4px;border-radius:2px;background:var(--rc)} .jnleg .lg-riv{height:3px;background:var(--map-riv)}
+.jnleg .lg-rel{height:3px;background:repeating-linear-gradient(90deg,var(--map-rel) 0 2px,transparent 2px 5px)} .jnleg .lg-tord{height:2px;background:repeating-linear-gradient(90deg,var(--ink) 0 4px,transparent 4px 7px)}
+.jnleg .lg-a.a-guaira{background:repeating-linear-gradient(45deg,rgba(var(--hg),.7) 0 2px,transparent 2px 5px);border:1px solid rgb(var(--hg))} .jnleg .lg-a.a-contestado{background:repeating-linear-gradient(45deg,rgba(var(--hc),.7) 0 2px,transparent 2px 5px);border:1px solid rgb(var(--hc))} .jnleg .lg-a.a-iguacu{background:repeating-linear-gradient(45deg,rgba(var(--hi),.7) 0 2px,transparent 2px 5px);border:1px solid rgb(var(--hi))}
+.jnhead .jnh-t{flex:1;min-width:0} .jn-atlasbtn{width:42px;height:42px}
+.jnbar{height:5px;border-radius:999px;background:var(--line);margin-top:12px;overflow:hidden} .jnbar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--pri),var(--fire));transition:width .6s var(--out)}
+.jnstage{margin-top:12px}
+.jncard{margin-top:12px;padding:16px 18px;border-radius:20px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--sh1);font-size:1.04rem;line-height:1.65}
+.jncard{position:relative;padding-right:52px}
+.jnvoz{position:absolute;top:10px;right:10px;display:grid;place-items:center;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--muted);padding:0;transition:background-color .2s,color .2s,transform .35s var(--spring)} .jnvoz svg{width:16px;height:16px} .jnvoz.on{background:var(--pri);border-color:var(--pri);color:var(--on-pri)}
+.jncard strong{background:linear-gradient(transparent 60%,color-mix(in srgb,var(--map-hl) 42%,transparent) 0);padding:0 1px;border-radius:2px}
+.jnq{margin-top:14px;padding:14px 16px;border-radius:16px;background:var(--pri-soft);border:1px solid color-mix(in srgb,var(--pri) 20%,transparent)}
+.jnq b{font-size:1.04rem;line-height:1.45;font-weight:700} .jnhint{display:flex;align-items:center;gap:6px;margin-top:6px} .jnhint svg{width:15px;height:15px;color:var(--pri)}
+.jnord{list-style:none;counter-reset:jo;margin:10px 0 0;padding:0;display:grid;gap:6px}
+.jnord li{counter-increment:jo;display:flex;gap:10px;align-items:center;padding:9px 12px;border-radius:12px;background:var(--green-soft);border:1px solid color-mix(in srgb,var(--green) 35%,transparent);font-weight:600}
+.jnord li::before{content:counter(jo);display:grid;place-items:center;width:24px;height:24px;border-radius:8px;background:var(--green);color:var(--on-green);font-size:.8rem;font-weight:800;flex:none}
+.jnhero{margin-top:14px;border-radius:var(--r-lg);overflow:hidden;background:var(--surface);border:1px solid var(--line);box-shadow:var(--sh2)}
+.jnhero .jnmap{border-radius:0;box-shadow:none}
+.jnhero-t{padding:16px;display:flex;flex-direction:column;gap:10px} .jnhero-t p{margin:0}
+.jnkick{font-size:.74rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--pri)}
+.jntools{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.jntools .qk{flex-direction:column;align-items:flex-start;gap:8px}
+.jnlist{list-style:none;margin:10px 0 12px;padding:0;display:flex;flex-direction:column;gap:9px}
+.jnlist li>button:first-child{display:grid;grid-template-columns:42px 1fr auto;gap:12px;align-items:center;width:100%;padding:11px 13px;border-radius:16px;border:1px solid var(--line);background:var(--surface);text-align:left;box-shadow:var(--sh1);transition:transform .4s var(--spring),border-color .2s,box-shadow .3s}
+.jnn{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-weight:800;background:var(--sunk);border:2px solid var(--line)} .jnn svg{width:18px;height:18px;color:var(--muted)}
+.jnt{display:flex;flex-direction:column;gap:2px;min-width:0} .jnt b{font-weight:700;font-size:.98rem;letter-spacing:-.01em} .jnt>span{font-size:.8rem;color:var(--muted);line-height:1.3}
+.jnprog{display:block;height:5px;border-radius:999px;background:var(--line);margin-top:5px;overflow:hidden} .jnprog i{display:block;height:100%;background:var(--pri);border-radius:999px}
+.jnlist li.done .jnn{background:linear-gradient(145deg,var(--green-2),var(--green));border-color:transparent;color:var(--on-green)}
+.jnlist li.cur>button:first-child{border-color:var(--pri);box-shadow:0 0 0 4px var(--pri-soft),var(--sh1)} .jnlist li.cur .jnn{border-color:var(--pri);color:var(--pri);background:var(--surface)}
+.jnlist li.locked>button:first-child{opacity:.55;box-shadow:none;cursor:default}
+.jnlist .jnres{margin:2px 0 0 56px}
+.jnres{margin:8px 0 12px;padding:0;list-style:none;display:grid;gap:8px}
+.jnres li{position:relative;padding:10px 12px 10px 36px;border-radius:12px;background:var(--surface);border:1px solid var(--line);line-height:1.5;font-size:.94rem}
+.jnres li::before{content:"";position:absolute;left:12px;top:15px;width:12px;height:12px;border-radius:4px;background:var(--map-hl)}
+.jnlist .jnres{display:inline-flex;padding:0;border:0;background:none}
+.jnlist .jnres::before{display:none}
+.jnmap-end{margin-top:12px}
+.jninfo{margin-top:10px;padding:12px 14px;border-radius:14px;background:var(--sunk);line-height:1.5} .jninfo p{margin:.35em 0 0}
+.jntl{list-style:none;margin:6px 0 12px;padding:0;border-left:3px solid var(--map-hl)} .jntl li{display:grid;grid-template-columns:96px 1fr;gap:10px;padding:6px 0 6px 12px;font-size:.92rem} .jntl b{font-weight:800}
+.jntl.off{opacity:.55}
+.jnpeople{list-style:none;margin:6px 0 12px;padding:0;display:grid;gap:6px} .jnpeople li{display:flex;flex-direction:column;padding:9px 12px;border-radius:12px;background:var(--surface);border:1px solid var(--line)} .jnpeople span{font-size:.86rem;color:var(--muted)}
+.jnfeat{position:relative;isolation:isolate;overflow:hidden;display:grid;grid-template-columns:1fr 124px;gap:10px;align-items:center;width:100%;margin-top:16px;padding:16px 12px 16px 18px;border:0;border-radius:var(--r-lg);background:radial-gradient(120% 140% at 100% 0%,rgba(139,92,246,.45),transparent 55%),radial-gradient(90% 120% at 0% 100%,rgba(240,97,42,.28),transparent 60%),var(--forest);color:var(--on-forest);text-align:left;box-shadow:0 18px 36px -18px rgba(28,63,58,.75),var(--sh1);transition:transform .4s var(--spring),box-shadow .3s}
+.jnf-t{display:flex;flex-direction:column;gap:4px;min-width:0}
+.jnf-t em{font-style:normal;font-size:.7rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--forest-acc)}
+.jnf-t b{font-size:1.3rem;font-weight:800;letter-spacing:-.025em;line-height:1.15}
+.jnf-t>span:not(.jnf-go){font-size:.86rem;color:var(--forest-mute);line-height:1.4}
+.jnf-go{display:inline-flex;align-items:center;gap:6px;margin-top:6px;font-weight:750;font-size:.9rem} .jnf-go svg{width:16px;height:16px;transition:transform .35s var(--spring)}
+.jnf-map .jnsvg{filter:drop-shadow(0 6px 12px rgba(0,0,0,.25))}
+.jnsvg.mini .jn-sea{fill:transparent} .jnsvg.mini .jn-nb{display:none}
+.jnsvg.mini .jn-rg{fill:rgba(255,255,255,.14);stroke:rgba(255,255,255,.3)} .jnsvg.mini .jn-rg.on{fill:#F4A571}
+.jnsvg.mini .jn-out{stroke:rgba(255,255,255,.75)} .jnsvg.mini .jn-riv{stroke:#8CC8F0;opacity:.8}
+.jnbanner{margin-top:12px}
+@media (hover:hover) and (pointer:fine){.jn-rg.tap:hover{fill:color-mix(in srgb,var(--pri) 22%,var(--map-land))} .jnfeat:hover{transform:scale(1.015)} .jnfeat:hover .jnf-go svg{transform:translateX(4px)} .jnlist li:not(.locked)>button:first-child:hover{transform:scale(1.012);border-color:color-mix(in srgb,var(--pri) 40%,var(--line));box-shadow:var(--sh2)}}
+@media (prefers-reduced-motion: no-preference){
+  .jn-rg.new{animation:jnpaint 1.3s var(--out) .15s backwards}
+  @keyframes jnpaint{0%{fill:var(--map-land)}40%{fill:var(--map-flash)}}
+  .jn-rt.new{stroke-dasharray:1;stroke-dashoffset:1;animation:jndraw 1.8s var(--out) .3s forwards}
+  @keyframes jndraw{to{stroke-dashoffset:0}}
+  .jn-city.new circle{transform-box:fill-box;transform-origin:center;animation:jnpop .6s var(--spring) .45s backwards}
+  .jn-city.new text{animation:fadein .5s var(--ease) .6s backwards}
+  @keyframes jnpop{from{transform:scale(0)}60%{transform:scale(1.8)}}
+  .jn-area.new{animation:fadein 1s var(--ease) .2s backwards}
+  .jn-riv.hi.new{animation:jnriv 1.4s var(--out) .2s backwards} @keyframes jnriv{from{stroke-width:calc(1.3px/var(--zs));opacity:.4}}
+  #app.newq .jnyear,#app.enter .jnyear{animation:celpop .6s var(--spring) .2s backwards}
+  #app.newq .jncard{animation:rise .45s var(--out) .12s backwards}
+  #app.newq .jnq{animation:rise .45s var(--out) .2s backwards}
+  .jn-rg.ok{animation:jnok .7s var(--out)} @keyframes jnok{0%{fill:var(--map-land)}50%{fill:#9BF0C9}}
+  .jn-rg.bad{animation:jnbad .5s} @keyframes jnbad{0%,100%{opacity:1}30%,70%{opacity:.55}}
+}
+@media (max-width:420px){ .jnfeat{grid-template-columns:1fr 104px} .jntools .qk{padding:11px} .jncard{font-size:1rem;padding:14px 50px 14px 15px} }
 </style>
 <main id="app"></main>
 <div id="timerbar" hidden></div>
@@ -733,5 +844,11 @@ details.content-d>summary svg{width:17px;height:17px;color:var(--pri)}
 <div id="sheet" hidden><div class="scrim" data-a="closeSheet"></div><div class="panel" role="dialog" aria-modal="true" aria-labelledby="sheetTitle"><div id="sheetBody"></div></div></div>
 <div id="celebrate" hidden></div>
 <div id="banners" aria-live="polite"></div>
+<svg id="jnDefs" width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute"><defs>
+<pattern id="jnHatchG" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" class="hb-g"/><path d="M0 0V6" class="hs-g" stroke-width="1.6"/></pattern>
+<pattern id="jnHatchC" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)"><rect width="6" height="6" class="hb-c"/><path d="M0 0V6" class="hs-c" stroke-width="1.6"/></pattern>
+<pattern id="jnHatchI" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(90)"><rect width="7" height="7" class="hb-i"/><path d="M0 0V7" class="hs-i" stroke-width="1.4"/></pattern>
+<marker id="jnArr" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="jn-arrh"/></marker>
+</defs></svg>
 <canvas id="fxcanvas" hidden></canvas>
 <div id="toast" role="status" aria-live="polite"></div>

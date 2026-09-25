@@ -9,7 +9,7 @@ OUT="Plano Cadete CBMPR.html"
   echo '<script>'
   echo '(function(){'
   echo "'use strict';"
-  for f in src/[1-3]*.js; do cat "$f"; done
+  for f in src/[1-9]*.js; do cat "$f"; done
   echo '})();'
   echo '</script>'
 } > "$OUT"

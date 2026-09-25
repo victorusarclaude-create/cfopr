@@ -23,7 +23,11 @@ O produto é um arquivo só: **`Plano Cadete CBMPR.html`**. Ele é gerado a part
 | `src/34_tela_hoje.js` | Tela Hoje e cronômetro de foco |
 | `src/35_tela_treino.js` | Jogos, Relâmpago, Chefão, flashcards, simulado, Teste 80/20 |
 | `src/36_telas_painel_erros_redacao.js` | Painel, Caderno de erros, Redação e folhas |
-| `src/37_acoes_inicio.js` | Ações dos botões, teclado, renderização e inicialização |
+| `src/37_acoes_inicio.js` | Ações dos botões, teclado, renderização |
+| `src/38_jornada_mapa.js` | Mapa do Paraná da Jornada (regiões, rios, relevo, cidades, caminhos), gerado por `tools/mapa_parana.py` |
+| `src/39_jornada_historia.js` | Roteiro da Jornada do Paraná: 13 capítulos em ordem cronológica, com cenas, perguntas, resumos, datas e personagens |
+| `src/40_jornada_motor.js` | Motor e telas da Jornada: mapa animado por cena, perguntas, revisão, progresso salvo, atlas, linha do tempo e narração |
+| `src/90_inicio.js` | Inicialização (roda depois de todos os módulos) |
 
 ## Gerar o arquivo
 

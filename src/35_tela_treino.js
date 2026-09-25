@@ -1,12 +1,13 @@
 
 /* ===================== ESTADO DO TREINO ===================== */
-const tutor={arena:null,quiz:null,quizGen:null,sim:null,simGen:null,t80:null,game:null,spot:null,ptab:null,map:null,tl:null,match:null,rel:null,flash:null,rf:null,aic:null};
-const MODES=['arena','quiz','quizGen','sim','simGen','t80','game','spot','ptab','map','tl','match','rel','flash'];
+const tutor={jn:null,arena:null,quiz:null,quizGen:null,sim:null,simGen:null,t80:null,game:null,spot:null,ptab:null,map:null,tl:null,match:null,rel:null,flash:null,rf:null,aic:null};
+const MODES=['jn','arena','quiz','quizGen','sim','simGen','t80','game','spot','ptab','map','tl','match','rel','flash'];
 function clearModes(){ MODES.forEach(k=>{ const v=tutor[k]; if(v&&v.ctl) try{ v.ctl.abort(); }catch(e){} tutor[k]=null; }); }
 function goTreino(){ closeSheetSilently(); UI.tab='tutor'; saveUI(); animNext(); render(); window.scrollTo(0,0); }
 function activeMode(){ return MODES.find(k=>tutor[k])||null; }
 function inRun(){
   const AR=tutor.arena; if(AR&&AR.view==='run'&&AR.G&&!AR.G.done) return true; if(AR&&AR.view==='gen') return true;
+  const JN=tutor.jn; if(JN&&(JN.view==='cap'||JN.view==='rev')) return true;
   const G=tutor.game, F=tutor.flash, M=tutor.sim, Q=tutor.quiz, R=tutor.rf, T8=tutor.t80;
   return !!((G&&!G.done)||(F&&F.pos<F.q.length)||(M&&!M.done)||(Q&&Q.ans.some(a=>a==null))||(R&&!R.done)||(T8&&!T8.done)||tutor.quizGen||tutor.simGen||
     (tutor.spot&&!tutor.spot.done)||(tutor.ptab&&!tutor.ptab.done)||(tutor.tl&&!tutor.tl.done)||(tutor.map&&tutor.map.pos<tutor.map.order.length)||(tutor.match&&!tutor.match.done)||(tutor.rel&&!tutor.rel.over));
@@ -544,6 +545,7 @@ function viewTreinoHub(){
   const fd=totalFlashDue(), ed=rfDue().length, t80p=Object.values(S.t80).filter(x=>x.passed).length;
   let h='<p class="lede">Tudo aqui alimenta o seu domínio no Painel: jogo, flashcard, simulado e questão viram uma medida só.</p>';
   if(sampleOff) h+='<p class="note small">O Claude não está disponível dentro da página agora. Os recursos de IA usam o banco do app ou copiam o pedido para você colar no chat.</p>';
+  h+=jnFeatureCard();
   h+='<h2>Revisar</h2><div class="hubgrid">';
   h+=hubCard(ICO.redo,'Revisão inteligente',fd?'Cartões vencendo, das matérias mais fracas primeiro':'Nada vencendo: estude cartões novos','smartOpen','',fd?String(fd):'');
   h+=hubCard(ICO.flag,'Caderno de erros',ed?'Erros que voltam hoje como questão':'Tudo em dia','tab',' data-v="erros"',ed?String(ed):'');
@@ -563,6 +565,7 @@ function viewTreinoHub(){
 }
 function viewTutor(){
   let h=activeMode()?header():pageHead('Treino');
+  if(tutor.jn) return h+viewJornada();
   if(tutor.arena) return h+viewArena();
   if(tutor.simGen) return h+viewSimGen();
   if(tutor.sim) return h+viewSim();

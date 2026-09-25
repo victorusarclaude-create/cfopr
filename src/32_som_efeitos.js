@@ -90,7 +90,7 @@ function buzz(p){ if(!SET.haptic) return; try{ if(navigator.vibrate) navigator.v
    sobrevive ao redesenho da tela que o próprio toque dispara. */
 let lastPt=null, pdn=null;
 function pressTarget(el){ const b=el&&el.closest?el.closest('button,[data-a],summary,label.filebtn'):null; return !b||b.disabled||b.getAttribute('aria-disabled')==='true'?null:b; }
-function pressKind(b){ if(b.closest('#tabs')) return 'nav'; if(b.matches('.btn.primary,.btn.go,.nextstep,.errcta,.arrec,#fab,.kp-ok')) return 'pri'; if(b.matches('.alt,.mtile,.sitem,.spotw,.kp,.cgap,.ptcell,.bin,.bstep button,.zone,.simchip,.chip,.seg button,.grade,.lvpath button')) return 'opt'; return ''; }
+function pressKind(b){ if(b.closest('#tabs')) return 'nav'; if(b.matches('.btn.primary,.btn.go,.nextstep,.errcta,.arrec,.jnfeat,#fab,.kp-ok')) return 'pri'; if(b.matches('.alt,.mtile,.sitem,.spotw,.kp,.cgap,.ptcell,.bin,.bstep button,.zone,.jn-rg,.simchip,.chip,.seg button,.grade,.lvpath button,.jnlist button')) return 'opt'; return ''; }
 function ripple(b,x,y){
   if(REDUCED||!(b instanceof HTMLElement)||b.closest('#tabs')||b.matches('.linkbtn,summary')) return;
   const r=b.getBoundingClientRect(); if(!r.width||r.width>760||r.height>420) return;

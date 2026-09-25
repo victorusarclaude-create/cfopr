@@ -39,9 +39,9 @@ function defaultState(){
   SUBJECTS.forEach(s=>{ topicList[s.id]=s.topicos.map(([id,nome,base])=>({id,nome,base:!!base})); });
   Object.keys(FLASHCARDS).forEach(t=>{ flashcards[t]=seedDeck(t); });
   return {v:2,updatedAt:0,welcomed:false,newsV:NEWS_V,topicList,topics:{},days:{},erros:[],redacoes:[],flashcards,games:{},gb:{},gm:{},mst:{},ach:{},t80:{},sims:[],hist:{},visits:{},
-    cfg:{goal:200,exam:'',name:'',at:0},qbank:{},notes:{},modes:{},arena:{},cardDel:{},seedV:SEED_V,streakMig:today(),xpMig:true,evMig:true,achInit:true};
+    cfg:{goal:200,exam:'',name:'',at:0},qbank:{},notes:{},modes:{},arena:{},jn:{},cardDel:{},seedV:SEED_V,streakMig:today(),xpMig:true,evMig:true,achInit:true};
 }
-const OBJ_KEYS=['topics','days','games','gb','gm','mst','ach','t80','hist','visits','qbank','notes','modes','arena','cardDel'];
+const OBJ_KEYS=['topics','days','games','gb','gm','mst','ach','t80','hist','visits','qbank','notes','modes','arena','jn','cardDel'];
 function migrate(o){
   const d=defaultState();
   if(!o||typeof o!=='object'||Array.isArray(o)) return d;
