@@ -31,6 +31,9 @@ const ICO={
   sound:svgI('<path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 8a5 5 0 0 1 0 8"/>'),
   soundLow:svgI('<path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 10a3 3 0 0 1 0 4"/>'),
   mute:svgI('<path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 15l4-4M21 15l-4-4"/>'),
+  sun:svgI('<circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M2.5 12h2.6M18.9 12h2.6M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/>'),
+  moon:svgI('<path d="M20 14.5A8.5 8.5 0 1 1 9.5 4 6.8 6.8 0 0 0 20 14.5z"/>'),
+  auto:svgI('<circle cx="12" cy="12" r="9"/><path fill="currentColor" stroke="none" d="M12 3a9 9 0 0 0 0 18z"/>'),
   heart:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 21s-7.5-4.6-9.6-9.2C1 8.4 3.1 5 6.6 5c2 0 3.4 1.1 4.2 2.4h2.4C14 6.1 15.4 5 17.4 5 20.9 5 23 8.4 21.6 11.8 19.5 16.4 12 21 12 21z"/></svg>'
 };
 function flameSVG(){
@@ -67,10 +70,13 @@ function mountCountUps(root){
 const CHECK_SVG='<svg class="checkdraw" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12l6 6L20 6"/></svg>';
 
 /* ===================== CABEÇALHO ===================== */
+const THEME_LBL={sys:'Tema: automático (do aparelho)',light:'Tema: claro',dark:'Tema: escuro'};
+const THEME_ICO={sys:ICO.auto,light:ICO.sun,dark:ICO.moon};
 function header(){
   const d=new Date().toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'short'}).replace(/\./g,'');
   const vi=SET.vol<=0?ICO.mute:(SET.vol<0.6?ICO.soundLow:ICO.sound);
-  return '<div class="top"><span class="date">'+esc(d)+'</span><span class="topr">'+(undoStack.length?'<button class="undobtn" data-a="undo">Desfazer</button>':'')+'<button class="iconbtn" data-a="sndToggle" aria-label="Som: '+(SET.vol<=0?'desligado':(SET.vol<0.6?'baixo':'normal'))+'">'+vi+'</button><span id="syncEl" class="sync '+SYNC.mode+'">'+syncLabel()+'</span></span></div>';
+  const th=UI.theme==='light'||UI.theme==='dark'?UI.theme:'sys';
+  return '<div class="top"><span class="date">'+esc(d)+'</span><span class="topr">'+(undoStack.length?'<button class="undobtn" data-a="undo">Desfazer</button>':'')+'<button class="iconbtn" data-a="themeToggle" aria-label="'+THEME_LBL[th]+', toque para trocar">'+THEME_ICO[th]+'</button><button class="iconbtn" data-a="sndToggle" aria-label="Som: '+(SET.vol<=0?'desligado':(SET.vol<0.6?'baixo':'normal'))+'">'+vi+'</button><span id="syncEl" class="sync '+SYNC.mode+'">'+syncLabel()+'</span></span></div>';
 }
 function pageHead(title,sub){ return header()+'<h1>'+esc(title)+'</h1><div class="hazard"></div>'+(sub?'<p class="lede">'+sub+'</p>':''); }
 

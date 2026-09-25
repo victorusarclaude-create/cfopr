@@ -83,6 +83,7 @@ const A={
   panic:()=>{ clearModes(); tutor.rf=null; UI.tab='hoje'; saveUI(); render(); },
   undo:()=>{ if(!undoStack.length) return; SND.tap(); const last=undoStack.pop(); try{ replaceState(migrate(JSON.parse(last))); commit(); }catch(e){} closeSheetSilently(); render(); toast('Ação desfeita.'); },
   sndToggle:()=>{ const v=SET.vol<=0?0.8:(SET.vol>=0.6?0.4:0); SND.setVol(v); if(v>0){ SND.unlock(); SND.ok(); } render(); toast(v<=0?'Som desligado.':(v<0.6?'Som baixo.':'Som normal.')); },
+  themeToggle:()=>{ const th=UI.theme==='light'||UI.theme==='dark'?UI.theme:'sys'; UI.theme={sys:'light',light:'dark',dark:'sys'}[th]; saveUI(); applyTheme(); render(); toast(THEME_LBL[UI.theme==='light'||UI.theme==='dark'?UI.theme:'sys']+'.'); },
   /* hoje */
   gtToggle:()=>{ if(GT.start!=null){ GT.acc+=(Date.now()-GT.start)/1000; GT.start=null; SND.tap(); } else { GT.start=Date.now(); SND.start(); } gtSave(); render(); },
   gtMode:b=>{ if(gtState()!=='idle') return; GT.mode=b.dataset.v; GT.phase='focus'; gtSave(); render(); },

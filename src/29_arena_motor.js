@@ -161,7 +161,10 @@ function viewArenaHome(){
       if(!items.length) return;
       h+='<h2>'+esc(meta.n)+'</h2><p class="small muted" style="margin-top:-8px">'+esc(meta.d)+'</p><div class="aglist">'+items.map(arCard).join('')+'</div>';
     });
-  } else h+='<div class="aglist">'+gs.map(arCard).join('')+'</div>';
+  } else {
+    if(sid==='qui') h+='<button class="btn ghost block" data-a="quiTabelaSheet" style="margin:12px 0">'+ICO.q+' Atlas da tabela periódica · 36 elementos coloridos por família</button>';
+    h+='<div class="aglist">'+gs.map(arCard).join('')+'</div>';
+  }
   h+='<div class="row modes" style="margin-top:14px"><button class="btn sm" data-a="relOpenS" data-s="'+sid+'">'+ICO.bolt+' Relâmpago da matéria</button><button class="btn sm" data-a="bossOpen" data-s="'+sid+'">'+ICO.crown+' Chefão da matéria</button></div>';
   return h;
 }
@@ -240,9 +243,10 @@ function arMapSVG(G,r){ const ans=G.ans;
   Object.keys(AR_ZONES).forEach(z=>{ const Z=AR_ZONES[z]; s+='<text x="'+Z.c[0]+'" y="'+Z.c[1]+'" text-anchor="middle">'+esc(ZN[z])+'</text>'; });
   s+='<text x="380" y="240" class="mk" text-anchor="end">Oceano Atlântico →</text></svg>';
   return '<div class="mapbox">'+s+'</div><p class="small muted">Mapa esquemático, sem escala.</p>'; }
+const ptIsRight=(r,s)=>Array.isArray(r.sym)?r.sym.indexOf(s)>=0:s===r.sym;
 function arPTable(G,r){ const ans=G.ans, cells={}; AR_EL.forEach(e=>{ cells[e.p+'-'+e.g]=e; });
   let h='<div class="ptwrap"><div class="ptgrid">';
-  for(let p=1;p<=4;p++) for(let g=1;g<=18;g++){ const e=cells[p+'-'+g]; if(!e){ h+='<span class="ptcell empty"></span>'; continue; } let c='ptcell'; if(ans){ if(e.s===r.sym) c+=' good'; else if(e.s===G.pick) c+=' bad'; } h+='<button class="'+c+'" data-a="arPT" data-s="'+e.s+'" aria-label="'+esc(e.n)+'"'+(ans?' disabled':'')+'>'+e.s+'</button>'; }
+  for(let p=1;p<=4;p++) for(let g=1;g<=18;g++){ const e=cells[p+'-'+g]; if(!e){ h+='<span class="ptcell empty"></span>'; continue; } let c='ptcell fam-'+famClass(e); if(ans){ if(ptIsRight(r,e.s)) c+=' good'; else if(e.s===G.pick) c+=' bad'; } h+='<button class="'+c+'" data-a="arPT" data-s="'+e.s+'" aria-label="'+esc(e.n)+'"'+(ans?' disabled':'')+'>'+e.s+'</button>'; }
   return h+'</div></div><p class="small muted">Períodos 1 a 4 da tabela periódica.</p>'; }
 function arAnswerText(r){
   if(r.k==='choice'||r.k==='tf'||r.k==='num') return r.k==='num'&&r.inp?fN(r.ans,r.d)+(r.u?' '+r.u:''):r.opts[r.right];
@@ -253,7 +257,7 @@ function arAnswerText(r){
   if(r.k==='match') return r.pairs.map(p=>p[0]+' → '+p[1]).join(' · ');
   if(r.k==='commas') return arCommaText(r.ch,r.sl.map(s=>s==='must'));
   if(r.k==='map') return AR_ZONES[r.zone].n;
-  if(r.k==='ptable'){ const e=AR_EL.find(x=>x.s===r.sym); return e.s+' ('+e.n+')'; }
+  if(r.k==='ptable'){ if(Array.isArray(r.sym)) return r.sym.map(s=>{ const e=AR_EL.find(x=>x.s===s); return e.s+' ('+e.n+')'; }).join(', '); const e=AR_EL.find(x=>x.s===r.sym); return e.s+' ('+e.n+')'; }
   if(r.k==='balance') return arEqText(r.L,r.R,r.co);
   return '';
 }
@@ -319,10 +323,11 @@ const ARENA_A={
   arComma:b=>{ const G=arCur(); if(!G||G.ans) return; const r=G.rounds[G.pos], rs=arRS(G); rs.cm=rs.cm||r.sl.map(()=>false); const i=+b.dataset.i; rs.cm[i]=!rs.cm[i]; SND.tap(); render(); },
   arCommaOk:()=>{ const G=arCur(); if(!G||G.ans) return; const r=G.rounds[G.pos], rs=arRS(G), cm=rs.cm||r.sl.map(()=>false); let err=0, tot=0; r.sl.forEach((s,i)=>{ if(s==='opt') return; tot++; if((s==='must')!==cm[i]) err++; }); arResolve(G,r,err===0,tot?Math.max(0,(tot-err)/tot):0); },
   arMap:b=>{ const G=arCur(); if(!G||G.ans) return; const r=G.rounds[G.pos], z=b.dataset.z; G.pick=z; arResolve(G,r,z===r.zone); },
-  arPT:b=>{ const G=arCur(); if(!G||G.ans) return; const r=G.rounds[G.pos], s=b.dataset.s; G.pick=s; arResolve(G,r,s===r.sym); },
+  arPT:b=>{ const G=arCur(); if(!G||G.ans) return; const r=G.rounds[G.pos], s=b.dataset.s; G.pick=s; arResolve(G,r,ptIsRight(r,s)); },
   arBal:b=>{ const G=arCur(); if(!G||G.ans) return; const r=G.rounds[G.pos], rs=arRS(G); rs.co=rs.co||r.co.map(()=>1); const i=+b.dataset.i; rs.co[i]=clamp(rs.co[i]+(+b.dataset.d),1,15); SND.tap(); render(); },
   arBalOk:()=>{ const G=arCur(); if(!G||G.ans) return; const r=G.rounds[G.pos], rs=arRS(G), co=rs.co||r.co.map(()=>1); const ok=co.every((v,i)=>v===r.co[i]); arResolve(G,r,ok,ok?1:co.filter((v,i)=>v===r.co[i]).length/co.length*0.5); },
-  portPegaSheet:()=>sheetPortPega()
+  portPegaSheet:()=>sheetPortPega(),
+  quiTabelaSheet:()=>sheetQuiTabela()
 };
 const ARENA_NOUNDO=Object.keys(ARENA_A);
 /* teclado nas partidas da Arena */

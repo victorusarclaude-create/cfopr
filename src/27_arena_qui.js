@@ -11,6 +11,20 @@ const EL=Object.fromEntries(AR_EL.map(e=>[e.s,e]));
 const FAM={1:'Metais alcalinos',2:'Metais alcalino-terrosos',13:'Família do boro',14:'Família do carbono',15:'Família do nitrogênio',16:'Calcogênios',17:'Halogênios',18:'Gases nobres'};
 const famOf=e=>e.s==='H'?'Hidrogênio (não pertence a família)':e.g>=3&&e.g<=12?'Metais de transição':FAM[e.g];
 const METAL=e=>(e.g<=2&&e.s!=='H')||(e.g>=3&&e.g<=12)||['Al','Ga'].indexOf(e.s)>=0;
+/* classe de cor para o mapa de cores da tabela (dupla codificação: cor + posição) */
+const famClass=e=>e.s==='H'?'h':e.g===1?'alk':e.g===2?'alkt':(e.g>=3&&e.g<=12)?'trans':e.g===13?'boro':e.g===14?'carbono':e.g===15?'nitro':e.g===16?'calc':e.g===17?'halo':'nobre';
+const FAM_LEGEND=[['h','Hidrogênio'],['alk','Metais alcalinos'],['alkt','Metais alcalino-terrosos'],['trans','Metais de transição'],['boro','Família do boro'],['carbono','Família do carbono'],['nitro','Família do nitrogênio'],['calc','Calcogênios'],['halo','Halogênios'],['nobre','Gases nobres']];
+const famSyms=k=>AR_EL.filter(e=>famClass(e)===k).map(e=>e.s);
+function sheetQuiTabela(){
+  const cells={}; AR_EL.forEach(e=>{ cells[e.p+'-'+e.g]=e; });
+  let grid='<div class="ptwrap"><div class="ptgrid ptatlas">';
+  for(let p=1;p<=4;p++) for(let g=1;g<=18;g++){ const e=cells[p+'-'+g]; grid+=e?'<span class="ptcell fam-'+famClass(e)+'" title="'+esc(e.n)+' · Z='+e.z+'"><b>'+e.s+'</b><em>'+e.z+'</em></span>':'<span class="ptcell empty"></span>'; }
+  grid+='</div></div>';
+  const leg='<div class="ptleg">'+FAM_LEGEND.map(([k,n])=>'<span><i style="background:color-mix(in srgb,var(--fam-'+k+') 55%,var(--surface))"></i>'+esc(n)+'</span>').join('')+'</div>';
+  let h='<h2 id="sheetTitle">Atlas da tabela periódica</h2><p class="small muted">Os 36 elementos dos 4 primeiros períodos, coloridos por família — a mesma cor do jogo Mapa dos elementos. Cor + posição juntas fixam muito mais rápido do que decorar em lista.</p>'+grid+leg;
+  h+=FAM_LEGEND.map(([k,n])=>{ const els=AR_EL.filter(e=>famClass(e)===k); return '<h3 style="margin-top:16px">'+esc(n)+'</h3><p class="small muted" style="margin-top:-6px">'+els.map(e=>e.n+' ('+e.s+')').join(', ')+'</p>'; }).join('');
+  openSheet(h,{key:'quiTabela'});
+}
 /* distribuição de Linus Pauling (sem as exceções Cr e Cu) */
 const SUBN=[['1s',2],['2s',2],['2p',6],['3s',2],['3p',6],['4s',2],['3d',10],['4p',6]];
 function pauling(z){ const out=[]; let r=z; for(const [n,c] of SUBN){ if(r<=0) break; const k=Math.min(c,r); out.push([n,k]); r-=k; } return out; }
@@ -53,6 +67,27 @@ qg('ar-qui-atom','qui-atom','Átomo e tabela periódica','Z','Partículas, íons
  {d:'Isótopos, isóbaros e isótonos; ache na tabela.',g:[()=>{ const Z=rI(6,30), A=Z*2+rI(0,6), t=rI(0,2); const B=t===0?[Z,A+rI(1,3)]:t===1?[Z+rI(1,3),A]:(()=>{ const dz=rI(1,3); return [Z+dz,A+dz]; })(); const nm=['Isótopos','Isóbaros','Isótonos'][t]; return arCh('Os átomos ᴬX com Z = '+Z+', A = '+A+' e Y com Z = '+B[0]+', A = '+B[1]+' são:',nm,['Isótopos','Isóbaros','Isótonos','Isoeletrônicos'].filter(x=>x!==nm),{x:'Isótopos: mesmo Z. Isóbaros: mesmo A. Isótonos: mesmo número de nêutrons.'}); },()=>{ const e=rP(AR_EL); return arPT('Toque no elemento: **'+e.n+'** (Z = '+e.z+').',e.s,{x:e.n+' ('+e.s+'): período '+e.p+', grupo '+e.g+'.'}); }]},
  {d:'Distribuição eletrônica (Linus Pauling).',g:[()=>{ const z=rP(AR_EL.filter(x=>x.z>=5&&[24,29].indexOf(x.z)<0)).z; const v=valence(z); return arNum('Quantos elétrons há na camada de valência do elemento de Z = '+z+'?',v.e,{d:0,c:[v.e+2,z%8,v.n],steps:['Distribuição: '+fPaul(pauling(z)),'Camada '+v.n+': '+v.e+' elétrons']}); },()=>{ const z=rP(AR_EL.filter(x=>x.z>=5&&[24,29].indexOf(x.z)<0)).z; const d=pauling(z), last=d[d.length-1]; const R=last[0]+sq(last[1]); const ws=SUBN.map(([n,c])=>n+sq(Math.min(c,rI(1,c)))).filter(x=>x!==R); return arCh('Subnível mais energético do elemento de Z = '+z+'?',R,ws,{x:fPaul(d)}); }]},
  {d:'Família, período e propriedades periódicas.',g:[()=>{ const e=rP(AR_EL.filter(x=>x.s!=='H')); return arCh(e.n+' ('+e.s+') pertence a:',famOf(e),['Metais alcalinos','Metais alcalino-terrosos','Metais de transição','Calcogênios','Halogênios','Gases nobres','Família do carbono'].filter(x=>x!==famOf(e)),{x:'Grupo '+e.g+', período '+e.p+'.'}); },()=>{ const [a,b]=rN(AR_EL.filter(x=>x.g!==18&&x.s!=='H'),2); const prop=rP(['maior raio atômico','maior eletronegatividade','maior energia de ionização']); const score=e=>prop==='maior raio atômico'?(e.p*20-e.g):(e.g*1-e.p*3); const win=score(a)>score(b)?a:b; if(score(a)===score(b)) return arPT('Toque no elemento: **'+a.n+'**.',a.s,{x:a.n}); return arCh('Entre '+a.n+' ('+a.s+') e '+b.n+' ('+b.s+'), qual tem '+prop+'?',win.n,[win===a?b.n:a.n],{x:prop==='maior raio atômico'?'O raio cresce para baixo e para a esquerda.':'Eletronegatividade e energia de ionização crescem para cima e para a direita.'}); }]}]);
+
+/* ---------- Mapa dos elementos: intimidade brutal com a tabela periódica ----------
+   Memória espacial (onde mora), recuperação bidirecional símbolo↔nome, reconhecimento
+   de família por cor+posição (dupla codificação) e, no nível 5, tudo interleaved sem aviso. */
+const elAt=(p,g)=>AR_EL.find(e=>e.p===p&&e.g===g);
+const ptG1=()=>{ const e=rP(AR_EL); return arPT('Toque no elemento: **'+e.n+'**.',e.s,{x:e.n+' ('+e.s+'): período '+e.p+', grupo '+e.g+'.'}); };
+const ptG1z=()=>{ const e=rP(AR_EL); return arPT('Toque no elemento de número atômico **Z = '+e.z+'**.',e.s,{x:e.s+' ('+e.n+'), período '+e.p+', grupo '+e.g+'.'}); };
+const ptG2sym=()=>{ const e=rP(AR_EL); return arCh('Qual é o símbolo de **'+e.n+'**?',e.s,rN(AR_EL.filter(x=>x!==e),5).map(x=>x.s),{x:e.n+' → '+e.s+'.'}); };
+const ptG2nome=()=>{ const e=rP(AR_EL); return arCh('Qual elemento tem o símbolo **'+e.s+'**?',e.n,rN(AR_EL.filter(x=>x!==e),5).map(x=>x.n),{x:e.s+' → '+e.n+'.'}); };
+const ptG3fam=()=>{ const fk=rP(FAM_LEGEND.filter(([k])=>k!=='h')); const syms=famSyms(fk[0]); return arPT('Toque em QUALQUER elemento da família: **'+fk[1]+'**.',syms,{x:'Também são dessa família: '+syms.map(s=>EL[s].n).join(', ')+'.'}); };
+const ptG3classif=()=>{ const e=rP(AR_EL.filter(x=>x.s!=='H')); return arCh(e.n+' ('+e.s+') pertence a:',famOf(e),FAM_LEGEND.map(([,n])=>n).filter(x=>x!==famOf(e)).slice(0,5),{x:'Grupo '+e.g+', período '+e.p+'.'}); };
+const ptG4metal=()=>{ const e=rP(AR_EL.filter(x=>x.g!==18)); const t=METAL(e)?'Metal':'Ametal'; return arCh(e.n+' ('+e.s+') é:',t,['Metal','Ametal'].filter(x=>x!==t).concat('Gás nobre'),{x:'Metais ficam à esquerda e no centro da tabela; ametais, à direita; gases nobres, no grupo 18.'}); };
+const ptG4viz=()=>{ const cand=AR_EL.filter(e=>elAt(e.p,e.g+1)); const e=rP(cand), nb=elAt(e.p,e.g+1); return arPT('Qual elemento fica imediatamente à direita de **'+e.n+'** ('+e.s+') no período '+e.p+'?',nb.s,{x:nb.n+' ('+nb.s+') vem logo depois de '+e.s+' no período '+e.p+'.'}); };
+const ptG4trend=()=>{ const p=rP([1,2,3,4]); const row=AR_EL.filter(e=>e.p===p); const [a,b]=rN(row,2); const winA=a.g<b.g; return arCh('No período '+p+', qual fica mais à esquerda (em geral, mais metálico)?',winA?a.n:b.n,[winA?b.n:a.n],{x:'Na tabela, o caráter metálico cai da esquerda para a direita, no mesmo período.'}); };
+qg('ar-qui-tabela','qui-atom','Mapa dos elementos','PT','Onde cada elemento mora, símbolo, família por cor e vizinhança na tabela — treino intenso e focado só na tabela periódica.',[
+ {d:'Ache o elemento pelo nome ou pelo número atômico — fixe onde cada um mora.',g:[ptG1,ptG1z]},
+ {d:'Símbolo relâmpago: vá e volte entre símbolo e nome, sem consultar a tabela.',g:[ptG2sym,ptG2nome]},
+ {d:'Família em foco: toque em QUALQUER elemento da família pedida — o que importa é reconhecer o grupo pela cor e pela posição.',g:[ptG3fam,ptG3classif]},
+ {d:'Vizinhança e tendências: metal ou ametal, e quem fica ao lado de quem.',g:[ptG4metal,ptG4viz,ptG4trend]},
+ {d:'Domínio brutal: tudo misturado, sem aviso do que vem — o teste final de intimidade com a tabela.',g:[ptG1,ptG1z,ptG2sym,ptG2nome,ptG3fam,ptG3classif,ptG4metal,ptG4viz,ptG4trend]}
+]);
 
 qg('ar-qui-radio','qui-radio','Radioatividade','☢','Partículas α, β e γ, emissões, séries radioativas, meia-vida e aplicações.',[
  {d:'Características de α, β e γ.',g:[cq([['Formada por 2 prótons e 2 nêutrons','Partícula alfa (α)'],['É um elétron emitido do núcleo','Partícula beta (β)'],['Onda eletromagnética, sem carga e sem massa','Radiação gama (γ)'],['Maior poder de penetração','Radiação gama (γ)'],['Menor poder de penetração (barrada por uma folha de papel)','Partícula alfa (α)'],['Carga +2','Partícula alfa (α)'],['Carga −1','Partícula beta (β)'],['Barrada por alguns milímetros de alumínio','Partícula beta (β)'],['Exige chumbo ou concreto espesso para blindagem','Radiação gama (γ)'],['Equivale ao núcleo do hélio','Partícula alfa (α)'],['Não altera Z nem A do núcleo','Radiação gama (γ)'],['Aumenta o número atômico em uma unidade','Partícula beta (β)'],['Diminui o número de massa em 4','Partícula alfa (α)']],'')]},

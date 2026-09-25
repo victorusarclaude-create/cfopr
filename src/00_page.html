@@ -1,4 +1,5 @@
 <meta charset="utf-8">
+<script>(function(){try{var t=JSON.parse(localStorage.getItem('cadete-cbmpr-ui')||'{}').theme;if(t==='light'||t==='dark')document.documentElement.dataset.theme=t;}catch(e){}})();</script>
 <title>Plano Cadete CBMPR</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,6 +17,7 @@
   --amber:#8A5A00; --amber-soft:#FBEFD2; --gold:#B7791F; --gold-soft:#FBF0D5; --star:#F5A524;
   --fire:#F0612A; --focus:#7C3AED; --focus-soft:#F2ECFE;
   --m0:#D92D20; --m1:#D9661A; --m2:#A87D00; --m3:#0F857A; --m4:#067A55;
+  --fam-h:#94A3B8; --fam-alk:#F97066; --fam-alkt:#F5A524; --fam-trans:#38BDF8; --fam-boro:#2DD4BF; --fam-carbono:#4ADE80; --fam-nitro:#A3E635; --fam-calc:#FACC15; --fam-halo:#C084FC; --fam-nobre:#22D3EE;
   --nav-h:64px; --r:18px; --r-sm:12px; --r-lg:26px;
   --sh1:0 1px 2px rgba(21,32,30,.04),0 2px 8px rgba(21,32,30,.05);
   --sh2:0 2px 4px rgba(21,32,30,.04),0 10px 26px rgba(21,32,30,.09);
@@ -279,7 +281,24 @@ input[type="checkbox"]{accent-color:var(--pri)}
 .ptwrap{overflow-x:auto;margin-top:14px}
 .ptgrid{display:grid;grid-template-columns:repeat(18,minmax(18px,1fr));gap:2px;min-width:340px}
 .ptcell{height:24px;display:flex;align-items:center;justify-content:center;font-size:.64rem;font-weight:700;border:1px solid var(--line-2);border-radius:5px;background:var(--surface);padding:0;transition:transform .3s var(--spring),background-color .2s}
+.ptcell.fam-h{background:color-mix(in srgb,var(--fam-h) 20%,var(--surface));border-color:color-mix(in srgb,var(--fam-h) 45%,var(--line-2))}
+.ptcell.fam-alk{background:color-mix(in srgb,var(--fam-alk) 20%,var(--surface));border-color:color-mix(in srgb,var(--fam-alk) 45%,var(--line-2))}
+.ptcell.fam-alkt{background:color-mix(in srgb,var(--fam-alkt) 20%,var(--surface));border-color:color-mix(in srgb,var(--fam-alkt) 45%,var(--line-2))}
+.ptcell.fam-trans{background:color-mix(in srgb,var(--fam-trans) 20%,var(--surface));border-color:color-mix(in srgb,var(--fam-trans) 45%,var(--line-2))}
+.ptcell.fam-boro{background:color-mix(in srgb,var(--fam-boro) 20%,var(--surface));border-color:color-mix(in srgb,var(--fam-boro) 45%,var(--line-2))}
+.ptcell.fam-carbono{background:color-mix(in srgb,var(--fam-carbono) 20%,var(--surface));border-color:color-mix(in srgb,var(--fam-carbono) 45%,var(--line-2))}
+.ptcell.fam-nitro{background:color-mix(in srgb,var(--fam-nitro) 20%,var(--surface));border-color:color-mix(in srgb,var(--fam-nitro) 45%,var(--line-2))}
+.ptcell.fam-calc{background:color-mix(in srgb,var(--fam-calc) 20%,var(--surface));border-color:color-mix(in srgb,var(--fam-calc) 45%,var(--line-2))}
+.ptcell.fam-halo{background:color-mix(in srgb,var(--fam-halo) 20%,var(--surface));border-color:color-mix(in srgb,var(--fam-halo) 45%,var(--line-2))}
+.ptcell.fam-nobre{background:color-mix(in srgb,var(--fam-nobre) 20%,var(--surface));border-color:color-mix(in srgb,var(--fam-nobre) 45%,var(--line-2))}
 .ptcell.empty{border:none;background:none} .ptcell.good{background:var(--green);border-color:var(--green);color:var(--on-green)} .ptcell.bad{background:var(--red-soft);border-color:var(--red);color:var(--red)}
+.ptleg{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:10px}
+.ptleg span{display:flex;align-items:center;gap:6px;font-size:.76rem;color:var(--muted)}
+.ptleg i{width:12px;height:12px;border-radius:4px;display:inline-block;border:1px solid var(--line-2)}
+.ptatlas{display:grid;grid-template-columns:repeat(18,minmax(20px,1fr));gap:3px;min-width:400px}
+.ptatlas .ptcell{height:auto;aspect-ratio:1;flex-direction:column;gap:0;font-size:.6rem;line-height:1.05}
+.ptatlas .ptcell b{font-size:.78rem}
+.ptatlas .ptcell em{font-style:normal;font-size:.5rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .matchgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
 .mtile{min-height:70px;padding:9px 11px;border:1px solid var(--line-2);border-radius:14px;background:var(--surface);font-size:.92rem;line-height:1.25;box-shadow:var(--sh1);transition:transform .35s var(--spring),border-color .2s,background-color .2s,box-shadow .25s}
 .mtile.front{font-weight:700} .mtile.sel{border-color:var(--pri);background:var(--pri-soft);box-shadow:0 0 0 3px color-mix(in srgb,var(--pri) 18%,transparent)} .mtile.bad{border-color:var(--red);background:var(--red-soft)} .mtile.solved{border-color:color-mix(in srgb,var(--green) 50%,transparent);background:var(--green-soft);color:var(--muted);box-shadow:none}
@@ -521,8 +540,8 @@ details.content-d>summary svg{width:17px;height:17px;color:var(--pri)}
 .tb-in .dot{width:9px;height:9px;border-radius:50%;background:var(--muted)}
 #timerbar.running .dot{background:var(--pri)} #timerbar.running{color:var(--pri)}
 .tb-l{font-size:.75rem;color:var(--muted);font-weight:600}
-#fab{position:fixed;right:max(16px,calc(50vw - 340px + 16px));bottom:calc(var(--nav-h) + 22px + env(safe-area-inset-bottom,0px));z-index:31;display:flex;align-items:center;gap:8px;padding:12px 18px 12px 15px;border-radius:999px;border:0;background:linear-gradient(135deg,var(--cta-a),var(--cta-b));color:var(--on-cta);font-weight:700;letter-spacing:-.005em;box-shadow:0 12px 28px -10px var(--pri-glow),0 2px 6px rgba(21,32,30,.12);transition:transform .4s var(--spring),box-shadow .3s}
-#fab svg{width:20px;height:20px;color:#FDE68A}
+#fab{position:fixed;right:max(16px,calc(50vw - 340px + 16px));bottom:calc(var(--nav-h) + 18px + env(safe-area-inset-bottom,0px));z-index:31;display:flex;align-items:center;gap:6px;padding:9px 14px 9px 11px;border-radius:999px;border:0;background:linear-gradient(135deg,var(--cta-a),var(--cta-b));color:var(--on-cta);font-weight:700;font-size:.86rem;letter-spacing:-.005em;box-shadow:0 10px 22px -10px var(--pri-glow),0 2px 5px rgba(21,32,30,.12);transition:transform .4s var(--spring),box-shadow .3s}
+#fab svg{width:16px;height:16px;color:#FDE68A}
 #sheet{position:fixed;inset:0;z-index:50}
 #sheet .scrim{position:absolute;inset:0;background:rgba(8,14,12,.5);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
 #sheet .panel{position:absolute;left:0;right:0;bottom:0;max-height:92%;overflow:auto;background:var(--surface);border-radius:28px 28px 0 0;padding:26px 20px calc(26px + env(safe-area-inset-bottom,0px));max-width:680px;margin:0 auto;overscroll-behavior:contain;box-shadow:0 -12px 48px rgba(0,0,0,.22)}

@@ -1,4 +1,5 @@
 <meta charset="utf-8">
+<script>(function(){try{var t=JSON.parse(localStorage.getItem('cadete-cbmpr-ui')||'{}').theme;if(t==='light'||t==='dark')document.documentElement.dataset.theme=t;}catch(e){}})();</script>
 <title>Plano Cadete CBMPR</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,6 +17,7 @@
   --amber:#8A5A00; --amber-soft:#FBEFD2; --gold:#B7791F; --gold-soft:#FBF0D5; --star:#F5A524;
   --fire:#F0612A; --focus:#7C3AED; --focus-soft:#F2ECFE;
   --m0:#D92D20; --m1:#D9661A; --m2:#A87D00; --m3:#0F857A; --m4:#067A55;
+  --fam-h:#94A3B8; --fam-alk:#F97066; --fam-alkt:#F5A524; --fam-trans:#38BDF8; --fam-boro:#2DD4BF; --fam-carbono:#4ADE80; --fam-nitro:#A3E635; --fam-calc:#FACC15; --fam-halo:#C084FC; --fam-nobre:#22D3EE;
   --nav-h:64px; --r:18px; --r-sm:12px; --r-lg:26px;
   --sh1:0 1px 2px rgba(21,32,30,.04),0 2px 8px rgba(21,32,30,.05);
   --sh2:0 2px 4px rgba(21,32,30,.04),0 10px 26px rgba(21,32,30,.09);
@@ -279,7 +281,24 @@ input[type="checkbox"]{accent-color:var(--pri)}
 .ptwrap{overflow-x:auto;margin-top:14px}
 .ptgrid{display:grid;grid-template-columns:repeat(18,minmax(18px,1fr));gap:2px;min-width:340px}
 .ptcell{height:24px;display:flex;align-items:center;justify-content:center;font-size:.64rem;font-weight:700;border:1px solid var(--line-2);border-radius:5px;background:var(--surface);padding:0;transition:transform .3s var(--spring),background-color .2s}
+.ptcell.fam-h{background:color-mix(in srgb,var(--fam-h) 20%,var(--surface));border-color:color-mix(in srgb,var(--fam-h) 45%,var(--line-2))}
+.ptcell.fam-alk{background:color-mix(in srgb,var(--fam-alk) 20%,var(--surface));border-color:color-mix(in srgb,var(--fam-alk) 45%,var(--line-2))}
+.ptcell.fam-alkt{background:color-mix(in srgb,var(--fam-alkt) 20%,var(--surface));border-color:color-mix(in srgb,var(--fam-alkt) 45%,var(--line-2))}
+.ptcell.fam-trans{background:color-mix(in srgb,var(--fam-trans) 20%,var(--surface));border-color:color-mix(in srgb,var(--fam-trans) 45%,var(--line-2))}
+.ptcell.fam-boro{background:color-mix(in srgb,var(--fam-boro) 20%,var(--surface));border-color:color-mix(in srgb,var(--fam-boro) 45%,var(--line-2))}
+.ptcell.fam-carbono{background:color-mix(in srgb,var(--fam-carbono) 20%,var(--surface));border-color:color-mix(in srgb,var(--fam-carbono) 45%,var(--line-2))}
+.ptcell.fam-nitro{background:color-mix(in srgb,var(--fam-nitro) 20%,var(--surface));border-color:color-mix(in srgb,var(--fam-nitro) 45%,var(--line-2))}
+.ptcell.fam-calc{background:color-mix(in srgb,var(--fam-calc) 20%,var(--surface));border-color:color-mix(in srgb,var(--fam-calc) 45%,var(--line-2))}
+.ptcell.fam-halo{background:color-mix(in srgb,var(--fam-halo) 20%,var(--surface));border-color:color-mix(in srgb,var(--fam-halo) 45%,var(--line-2))}
+.ptcell.fam-nobre{background:color-mix(in srgb,var(--fam-nobre) 20%,var(--surface));border-color:color-mix(in srgb,var(--fam-nobre) 45%,var(--line-2))}
 .ptcell.empty{border:none;background:none} .ptcell.good{background:var(--green);border-color:var(--green);color:var(--on-green)} .ptcell.bad{background:var(--red-soft);border-color:var(--red);color:var(--red)}
+.ptleg{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:10px}
+.ptleg span{display:flex;align-items:center;gap:6px;font-size:.76rem;color:var(--muted)}
+.ptleg i{width:12px;height:12px;border-radius:4px;display:inline-block;border:1px solid var(--line-2)}
+.ptatlas{display:grid;grid-template-columns:repeat(18,minmax(20px,1fr));gap:3px;min-width:400px}
+.ptatlas .ptcell{height:auto;aspect-ratio:1;flex-direction:column;gap:0;font-size:.6rem;line-height:1.05}
+.ptatlas .ptcell b{font-size:.78rem}
+.ptatlas .ptcell em{font-style:normal;font-size:.5rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .matchgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
 .mtile{min-height:70px;padding:9px 11px;border:1px solid var(--line-2);border-radius:14px;background:var(--surface);font-size:.92rem;line-height:1.25;box-shadow:var(--sh1);transition:transform .35s var(--spring),border-color .2s,background-color .2s,box-shadow .25s}
 .mtile.front{font-weight:700} .mtile.sel{border-color:var(--pri);background:var(--pri-soft);box-shadow:0 0 0 3px color-mix(in srgb,var(--pri) 18%,transparent)} .mtile.bad{border-color:var(--red);background:var(--red-soft)} .mtile.solved{border-color:color-mix(in srgb,var(--green) 50%,transparent);background:var(--green-soft);color:var(--muted);box-shadow:none}
@@ -521,8 +540,8 @@ details.content-d>summary svg{width:17px;height:17px;color:var(--pri)}
 .tb-in .dot{width:9px;height:9px;border-radius:50%;background:var(--muted)}
 #timerbar.running .dot{background:var(--pri)} #timerbar.running{color:var(--pri)}
 .tb-l{font-size:.75rem;color:var(--muted);font-weight:600}
-#fab{position:fixed;right:max(16px,calc(50vw - 340px + 16px));bottom:calc(var(--nav-h) + 22px + env(safe-area-inset-bottom,0px));z-index:31;display:flex;align-items:center;gap:8px;padding:12px 18px 12px 15px;border-radius:999px;border:0;background:linear-gradient(135deg,var(--cta-a),var(--cta-b));color:var(--on-cta);font-weight:700;letter-spacing:-.005em;box-shadow:0 12px 28px -10px var(--pri-glow),0 2px 6px rgba(21,32,30,.12);transition:transform .4s var(--spring),box-shadow .3s}
-#fab svg{width:20px;height:20px;color:#FDE68A}
+#fab{position:fixed;right:max(16px,calc(50vw - 340px + 16px));bottom:calc(var(--nav-h) + 18px + env(safe-area-inset-bottom,0px));z-index:31;display:flex;align-items:center;gap:6px;padding:9px 14px 9px 11px;border-radius:999px;border:0;background:linear-gradient(135deg,var(--cta-a),var(--cta-b));color:var(--on-cta);font-weight:700;font-size:.86rem;letter-spacing:-.005em;box-shadow:0 10px 22px -10px var(--pri-glow),0 2px 5px rgba(21,32,30,.12);transition:transform .4s var(--spring),box-shadow .3s}
+#fab svg{width:16px;height:16px;color:#FDE68A}
 #sheet{position:fixed;inset:0;z-index:50}
 #sheet .scrim{position:absolute;inset:0;background:rgba(8,14,12,.5);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
 #sheet .panel{position:absolute;left:0;right:0;bottom:0;max-height:92%;overflow:auto;background:var(--surface);border-radius:28px 28px 0 0;padding:26px 20px calc(26px + env(safe-area-inset-bottom,0px));max-width:680px;margin:0 auto;overscroll-behavior:contain;box-shadow:0 -12px 48px rgba(0,0,0,.22)}
@@ -2987,7 +3006,7 @@ function arAsChoice(r){
     while(ws.length<4&&g<60){ g++; const pat=r.sl.map(s=>s==='must'?rC(.75):s==='no'?rC(.3):rC(.5)); const bad=r.sl.some((s,i)=>(s==='must'&&!pat[i])||(s==='no'&&pat[i])); if(!bad) continue; const t=arCommaText(r.ch,pat); if(t!==ok&&ws.indexOf(t)<0) ws.push(t); }
     if(ws.length<2) return null; return arCh('Assinale a frase com a pontuação correta.',ok,ws,{x:r.x}); }
   if(r.k==='map'&&typeof AR_ZONES!=='undefined'){ return arCh(r.q,AR_ZONES[r.zone].n,Object.keys(AR_ZONES).filter(z=>z!==r.zone).map(z=>AR_ZONES[z].n),{x:r.x}); }
-  if(r.k==='ptable'&&typeof AR_EL!=='undefined'){ const e=AR_EL.find(x=>x.s===r.sym); return arCh(r.q,e.s+' ('+e.n+')',rN(AR_EL.filter(x=>x.s!==r.sym&&x.z<=36),6).map(x=>x.s+' ('+x.n+')'),{x:r.x}); }
+  if(r.k==='ptable'&&typeof AR_EL!=='undefined'){ const syms=Array.isArray(r.sym)?r.sym:[r.sym]; const e=AR_EL.find(x=>x.s===syms[0]); return arCh(r.q,e.s+' ('+e.n+')',rN(AR_EL.filter(x=>syms.indexOf(x.s)<0&&x.z<=36),6).map(x=>x.s+' ('+x.n+')'),{x:r.x}); }
   if(r.k==='balance'){ const ok=r.co.join(', '), ws=[]; let g=0; while(ws.length<4&&g<60){ g++; const c=r.co.map(v=>Math.max(1,v+rI(-1,2))); const s=c.join(', '); if(s!==ok&&ws.indexOf(s)<0&&!arCoefEq(c,r.co)) ws.push(s); }
     return arCh(r.q+'\n'+arEqText(r.L,r.R,null)+'\nCoeficientes (na ordem, menores inteiros):',ok,ws,{x:r.x}); }
   return null;
@@ -3935,6 +3954,20 @@ const EL=Object.fromEntries(AR_EL.map(e=>[e.s,e]));
 const FAM={1:'Metais alcalinos',2:'Metais alcalino-terrosos',13:'Família do boro',14:'Família do carbono',15:'Família do nitrogênio',16:'Calcogênios',17:'Halogênios',18:'Gases nobres'};
 const famOf=e=>e.s==='H'?'Hidrogênio (não pertence a família)':e.g>=3&&e.g<=12?'Metais de transição':FAM[e.g];
 const METAL=e=>(e.g<=2&&e.s!=='H')||(e.g>=3&&e.g<=12)||['Al','Ga'].indexOf(e.s)>=0;
+/* classe de cor para o mapa de cores da tabela (dupla codificação: cor + posição) */
+const famClass=e=>e.s==='H'?'h':e.g===1?'alk':e.g===2?'alkt':(e.g>=3&&e.g<=12)?'trans':e.g===13?'boro':e.g===14?'carbono':e.g===15?'nitro':e.g===16?'calc':e.g===17?'halo':'nobre';
+const FAM_LEGEND=[['h','Hidrogênio'],['alk','Metais alcalinos'],['alkt','Metais alcalino-terrosos'],['trans','Metais de transição'],['boro','Família do boro'],['carbono','Família do carbono'],['nitro','Família do nitrogênio'],['calc','Calcogênios'],['halo','Halogênios'],['nobre','Gases nobres']];
+const famSyms=k=>AR_EL.filter(e=>famClass(e)===k).map(e=>e.s);
+function sheetQuiTabela(){
+  const cells={}; AR_EL.forEach(e=>{ cells[e.p+'-'+e.g]=e; });
+  let grid='<div class="ptwrap"><div class="ptgrid ptatlas">';
+  for(let p=1;p<=4;p++) for(let g=1;g<=18;g++){ const e=cells[p+'-'+g]; grid+=e?'<span class="ptcell fam-'+famClass(e)+'" title="'+esc(e.n)+' · Z='+e.z+'"><b>'+e.s+'</b><em>'+e.z+'</em></span>':'<span class="ptcell empty"></span>'; }
+  grid+='</div></div>';
+  const leg='<div class="ptleg">'+FAM_LEGEND.map(([k,n])=>'<span><i style="background:color-mix(in srgb,var(--fam-'+k+') 55%,var(--surface))"></i>'+esc(n)+'</span>').join('')+'</div>';
+  let h='<h2 id="sheetTitle">Atlas da tabela periódica</h2><p class="small muted">Os 36 elementos dos 4 primeiros períodos, coloridos por família — a mesma cor do jogo Mapa dos elementos. Cor + posição juntas fixam muito mais rápido do que decorar em lista.</p>'+grid+leg;
+  h+=FAM_LEGEND.map(([k,n])=>{ const els=AR_EL.filter(e=>famClass(e)===k); return '<h3 style="margin-top:16px">'+esc(n)+'</h3><p class="small muted" style="margin-top:-6px">'+els.map(e=>e.n+' ('+e.s+')').join(', ')+'</p>'; }).join('');
+  openSheet(h,{key:'quiTabela'});
+}
 /* distribuição de Linus Pauling (sem as exceções Cr e Cu) */
 const SUBN=[['1s',2],['2s',2],['2p',6],['3s',2],['3p',6],['4s',2],['3d',10],['4p',6]];
 function pauling(z){ const out=[]; let r=z; for(const [n,c] of SUBN){ if(r<=0) break; const k=Math.min(c,r); out.push([n,k]); r-=k; } return out; }
@@ -3977,6 +4010,27 @@ qg('ar-qui-atom','qui-atom','Átomo e tabela periódica','Z','Partículas, íons
  {d:'Isótopos, isóbaros e isótonos; ache na tabela.',g:[()=>{ const Z=rI(6,30), A=Z*2+rI(0,6), t=rI(0,2); const B=t===0?[Z,A+rI(1,3)]:t===1?[Z+rI(1,3),A]:(()=>{ const dz=rI(1,3); return [Z+dz,A+dz]; })(); const nm=['Isótopos','Isóbaros','Isótonos'][t]; return arCh('Os átomos ᴬX com Z = '+Z+', A = '+A+' e Y com Z = '+B[0]+', A = '+B[1]+' são:',nm,['Isótopos','Isóbaros','Isótonos','Isoeletrônicos'].filter(x=>x!==nm),{x:'Isótopos: mesmo Z. Isóbaros: mesmo A. Isótonos: mesmo número de nêutrons.'}); },()=>{ const e=rP(AR_EL); return arPT('Toque no elemento: **'+e.n+'** (Z = '+e.z+').',e.s,{x:e.n+' ('+e.s+'): período '+e.p+', grupo '+e.g+'.'}); }]},
  {d:'Distribuição eletrônica (Linus Pauling).',g:[()=>{ const z=rP(AR_EL.filter(x=>x.z>=5&&[24,29].indexOf(x.z)<0)).z; const v=valence(z); return arNum('Quantos elétrons há na camada de valência do elemento de Z = '+z+'?',v.e,{d:0,c:[v.e+2,z%8,v.n],steps:['Distribuição: '+fPaul(pauling(z)),'Camada '+v.n+': '+v.e+' elétrons']}); },()=>{ const z=rP(AR_EL.filter(x=>x.z>=5&&[24,29].indexOf(x.z)<0)).z; const d=pauling(z), last=d[d.length-1]; const R=last[0]+sq(last[1]); const ws=SUBN.map(([n,c])=>n+sq(Math.min(c,rI(1,c)))).filter(x=>x!==R); return arCh('Subnível mais energético do elemento de Z = '+z+'?',R,ws,{x:fPaul(d)}); }]},
  {d:'Família, período e propriedades periódicas.',g:[()=>{ const e=rP(AR_EL.filter(x=>x.s!=='H')); return arCh(e.n+' ('+e.s+') pertence a:',famOf(e),['Metais alcalinos','Metais alcalino-terrosos','Metais de transição','Calcogênios','Halogênios','Gases nobres','Família do carbono'].filter(x=>x!==famOf(e)),{x:'Grupo '+e.g+', período '+e.p+'.'}); },()=>{ const [a,b]=rN(AR_EL.filter(x=>x.g!==18&&x.s!=='H'),2); const prop=rP(['maior raio atômico','maior eletronegatividade','maior energia de ionização']); const score=e=>prop==='maior raio atômico'?(e.p*20-e.g):(e.g*1-e.p*3); const win=score(a)>score(b)?a:b; if(score(a)===score(b)) return arPT('Toque no elemento: **'+a.n+'**.',a.s,{x:a.n}); return arCh('Entre '+a.n+' ('+a.s+') e '+b.n+' ('+b.s+'), qual tem '+prop+'?',win.n,[win===a?b.n:a.n],{x:prop==='maior raio atômico'?'O raio cresce para baixo e para a esquerda.':'Eletronegatividade e energia de ionização crescem para cima e para a direita.'}); }]}]);
+
+/* ---------- Mapa dos elementos: intimidade brutal com a tabela periódica ----------
+   Memória espacial (onde mora), recuperação bidirecional símbolo↔nome, reconhecimento
+   de família por cor+posição (dupla codificação) e, no nível 5, tudo interleaved sem aviso. */
+const elAt=(p,g)=>AR_EL.find(e=>e.p===p&&e.g===g);
+const ptG1=()=>{ const e=rP(AR_EL); return arPT('Toque no elemento: **'+e.n+'**.',e.s,{x:e.n+' ('+e.s+'): período '+e.p+', grupo '+e.g+'.'}); };
+const ptG1z=()=>{ const e=rP(AR_EL); return arPT('Toque no elemento de número atômico **Z = '+e.z+'**.',e.s,{x:e.s+' ('+e.n+'), período '+e.p+', grupo '+e.g+'.'}); };
+const ptG2sym=()=>{ const e=rP(AR_EL); return arCh('Qual é o símbolo de **'+e.n+'**?',e.s,rN(AR_EL.filter(x=>x!==e),5).map(x=>x.s),{x:e.n+' → '+e.s+'.'}); };
+const ptG2nome=()=>{ const e=rP(AR_EL); return arCh('Qual elemento tem o símbolo **'+e.s+'**?',e.n,rN(AR_EL.filter(x=>x!==e),5).map(x=>x.n),{x:e.s+' → '+e.n+'.'}); };
+const ptG3fam=()=>{ const fk=rP(FAM_LEGEND.filter(([k])=>k!=='h')); const syms=famSyms(fk[0]); return arPT('Toque em QUALQUER elemento da família: **'+fk[1]+'**.',syms,{x:'Também são dessa família: '+syms.map(s=>EL[s].n).join(', ')+'.'}); };
+const ptG3classif=()=>{ const e=rP(AR_EL.filter(x=>x.s!=='H')); return arCh(e.n+' ('+e.s+') pertence a:',famOf(e),FAM_LEGEND.map(([,n])=>n).filter(x=>x!==famOf(e)).slice(0,5),{x:'Grupo '+e.g+', período '+e.p+'.'}); };
+const ptG4metal=()=>{ const e=rP(AR_EL.filter(x=>x.g!==18)); const t=METAL(e)?'Metal':'Ametal'; return arCh(e.n+' ('+e.s+') é:',t,['Metal','Ametal'].filter(x=>x!==t).concat('Gás nobre'),{x:'Metais ficam à esquerda e no centro da tabela; ametais, à direita; gases nobres, no grupo 18.'}); };
+const ptG4viz=()=>{ const cand=AR_EL.filter(e=>elAt(e.p,e.g+1)); const e=rP(cand), nb=elAt(e.p,e.g+1); return arPT('Qual elemento fica imediatamente à direita de **'+e.n+'** ('+e.s+') no período '+e.p+'?',nb.s,{x:nb.n+' ('+nb.s+') vem logo depois de '+e.s+' no período '+e.p+'.'}); };
+const ptG4trend=()=>{ const p=rP([1,2,3,4]); const row=AR_EL.filter(e=>e.p===p); const [a,b]=rN(row,2); const winA=a.g<b.g; return arCh('No período '+p+', qual fica mais à esquerda (em geral, mais metálico)?',winA?a.n:b.n,[winA?b.n:a.n],{x:'Na tabela, o caráter metálico cai da esquerda para a direita, no mesmo período.'}); };
+qg('ar-qui-tabela','qui-atom','Mapa dos elementos','PT','Onde cada elemento mora, símbolo, família por cor e vizinhança na tabela — treino intenso e focado só na tabela periódica.',[
+ {d:'Ache o elemento pelo nome ou pelo número atômico — fixe onde cada um mora.',g:[ptG1,ptG1z]},
+ {d:'Símbolo relâmpago: vá e volte entre símbolo e nome, sem consultar a tabela.',g:[ptG2sym,ptG2nome]},
+ {d:'Família em foco: toque em QUALQUER elemento da família pedida — o que importa é reconhecer o grupo pela cor e pela posição.',g:[ptG3fam,ptG3classif]},
+ {d:'Vizinhança e tendências: metal ou ametal, e quem fica ao lado de quem.',g:[ptG4metal,ptG4viz,ptG4trend]},
+ {d:'Domínio brutal: tudo misturado, sem aviso do que vem — o teste final de intimidade com a tabela.',g:[ptG1,ptG1z,ptG2sym,ptG2nome,ptG3fam,ptG3classif,ptG4metal,ptG4viz,ptG4trend]}
+]);
 
 qg('ar-qui-radio','qui-radio','Radioatividade','☢','Partículas α, β e γ, emissões, séries radioativas, meia-vida e aplicações.',[
  {d:'Características de α, β e γ.',g:[cq([['Formada por 2 prótons e 2 nêutrons','Partícula alfa (α)'],['É um elétron emitido do núcleo','Partícula beta (β)'],['Onda eletromagnética, sem carga e sem massa','Radiação gama (γ)'],['Maior poder de penetração','Radiação gama (γ)'],['Menor poder de penetração (barrada por uma folha de papel)','Partícula alfa (α)'],['Carga +2','Partícula alfa (α)'],['Carga −1','Partícula beta (β)'],['Barrada por alguns milímetros de alumínio','Partícula beta (β)'],['Exige chumbo ou concreto espesso para blindagem','Radiação gama (γ)'],['Equivale ao núcleo do hélio','Partícula alfa (α)'],['Não altera Z nem A do núcleo','Radiação gama (γ)'],['Aumenta o número atômico em uma unidade','Partícula beta (β)'],['Diminui o número de massa em 4','Partícula alfa (α)']],'')]},
@@ -4340,7 +4394,10 @@ function viewArenaHome(){
       if(!items.length) return;
       h+='<h2>'+esc(meta.n)+'</h2><p class="small muted" style="margin-top:-8px">'+esc(meta.d)+'</p><div class="aglist">'+items.map(arCard).join('')+'</div>';
     });
-  } else h+='<div class="aglist">'+gs.map(arCard).join('')+'</div>';
+  } else {
+    if(sid==='qui') h+='<button class="btn ghost block" data-a="quiTabelaSheet" style="margin:12px 0">'+ICO.q+' Atlas da tabela periódica · 36 elementos coloridos por família</button>';
+    h+='<div class="aglist">'+gs.map(arCard).join('')+'</div>';
+  }
   h+='<div class="row modes" style="margin-top:14px"><button class="btn sm" data-a="relOpenS" data-s="'+sid+'">'+ICO.bolt+' Relâmpago da matéria</button><button class="btn sm" data-a="bossOpen" data-s="'+sid+'">'+ICO.crown+' Chefão da matéria</button></div>';
   return h;
 }
@@ -4419,9 +4476,10 @@ function arMapSVG(G,r){ const ans=G.ans;
   Object.keys(AR_ZONES).forEach(z=>{ const Z=AR_ZONES[z]; s+='<text x="'+Z.c[0]+'" y="'+Z.c[1]+'" text-anchor="middle">'+esc(ZN[z])+'</text>'; });
   s+='<text x="380" y="240" class="mk" text-anchor="end">Oceano Atlântico →</text></svg>';
   return '<div class="mapbox">'+s+'</div><p class="small muted">Mapa esquemático, sem escala.</p>'; }
+const ptIsRight=(r,s)=>Array.isArray(r.sym)?r.sym.indexOf(s)>=0:s===r.sym;
 function arPTable(G,r){ const ans=G.ans, cells={}; AR_EL.forEach(e=>{ cells[e.p+'-'+e.g]=e; });
   let h='<div class="ptwrap"><div class="ptgrid">';
-  for(let p=1;p<=4;p++) for(let g=1;g<=18;g++){ const e=cells[p+'-'+g]; if(!e){ h+='<span class="ptcell empty"></span>'; continue; } let c='ptcell'; if(ans){ if(e.s===r.sym) c+=' good'; else if(e.s===G.pick) c+=' bad'; } h+='<button class="'+c+'" data-a="arPT" data-s="'+e.s+'" aria-label="'+esc(e.n)+'"'+(ans?' disabled':'')+'>'+e.s+'</button>'; }
+  for(let p=1;p<=4;p++) for(let g=1;g<=18;g++){ const e=cells[p+'-'+g]; if(!e){ h+='<span class="ptcell empty"></span>'; continue; } let c='ptcell fam-'+famClass(e); if(ans){ if(ptIsRight(r,e.s)) c+=' good'; else if(e.s===G.pick) c+=' bad'; } h+='<button class="'+c+'" data-a="arPT" data-s="'+e.s+'" aria-label="'+esc(e.n)+'"'+(ans?' disabled':'')+'>'+e.s+'</button>'; }
   return h+'</div></div><p class="small muted">Períodos 1 a 4 da tabela periódica.</p>'; }
 function arAnswerText(r){
   if(r.k==='choice'||r.k==='tf'||r.k==='num') return r.k==='num'&&r.inp?fN(r.ans,r.d)+(r.u?' '+r.u:''):r.opts[r.right];
@@ -4432,7 +4490,7 @@ function arAnswerText(r){
   if(r.k==='match') return r.pairs.map(p=>p[0]+' → '+p[1]).join(' · ');
   if(r.k==='commas') return arCommaText(r.ch,r.sl.map(s=>s==='must'));
   if(r.k==='map') return AR_ZONES[r.zone].n;
-  if(r.k==='ptable'){ const e=AR_EL.find(x=>x.s===r.sym); return e.s+' ('+e.n+')'; }
+  if(r.k==='ptable'){ if(Array.isArray(r.sym)) return r.sym.map(s=>{ const e=AR_EL.find(x=>x.s===s); return e.s+' ('+e.n+')'; }).join(', '); const e=AR_EL.find(x=>x.s===r.sym); return e.s+' ('+e.n+')'; }
   if(r.k==='balance') return arEqText(r.L,r.R,r.co);
   return '';
 }
@@ -4498,10 +4556,11 @@ const ARENA_A={
   arComma:b=>{ const G=arCur(); if(!G||G.ans) return; const r=G.rounds[G.pos], rs=arRS(G); rs.cm=rs.cm||r.sl.map(()=>false); const i=+b.dataset.i; rs.cm[i]=!rs.cm[i]; SND.tap(); render(); },
   arCommaOk:()=>{ const G=arCur(); if(!G||G.ans) return; const r=G.rounds[G.pos], rs=arRS(G), cm=rs.cm||r.sl.map(()=>false); let err=0, tot=0; r.sl.forEach((s,i)=>{ if(s==='opt') return; tot++; if((s==='must')!==cm[i]) err++; }); arResolve(G,r,err===0,tot?Math.max(0,(tot-err)/tot):0); },
   arMap:b=>{ const G=arCur(); if(!G||G.ans) return; const r=G.rounds[G.pos], z=b.dataset.z; G.pick=z; arResolve(G,r,z===r.zone); },
-  arPT:b=>{ const G=arCur(); if(!G||G.ans) return; const r=G.rounds[G.pos], s=b.dataset.s; G.pick=s; arResolve(G,r,s===r.sym); },
+  arPT:b=>{ const G=arCur(); if(!G||G.ans) return; const r=G.rounds[G.pos], s=b.dataset.s; G.pick=s; arResolve(G,r,ptIsRight(r,s)); },
   arBal:b=>{ const G=arCur(); if(!G||G.ans) return; const r=G.rounds[G.pos], rs=arRS(G); rs.co=rs.co||r.co.map(()=>1); const i=+b.dataset.i; rs.co[i]=clamp(rs.co[i]+(+b.dataset.d),1,15); SND.tap(); render(); },
   arBalOk:()=>{ const G=arCur(); if(!G||G.ans) return; const r=G.rounds[G.pos], rs=arRS(G), co=rs.co||r.co.map(()=>1); const ok=co.every((v,i)=>v===r.co[i]); arResolve(G,r,ok,ok?1:co.filter((v,i)=>v===r.co[i]).length/co.length*0.5); },
-  portPegaSheet:()=>sheetPortPega()
+  portPegaSheet:()=>sheetPortPega(),
+  quiTabelaSheet:()=>sheetQuiTabela()
 };
 const ARENA_NOUNDO=Object.keys(ARENA_A);
 /* teclado nas partidas da Arena */
@@ -4611,6 +4670,9 @@ let S;
 try{ S=migrate(JSON.parse(localStorage.getItem(LS)||'null')); }catch(e){ S=defaultState(); }
 let UI=Object.assign({tab:'hoje'},lsGet(LS_UI,{}));
 function saveUI(){ lsSet(LS_UI,UI); }
+/* tema: 'claro'/'escuro' força a mão; sem UI.theme, segue o sistema (já aplicado antes da 1ª pintura, no <head>) */
+function applyTheme(){ const t=UI.theme; if(t==='light'||t==='dark') document.documentElement.dataset.theme=t; else delete document.documentElement.dataset.theme; }
+applyTheme();
 const SET=Object.assign({vol:0.8,haptic:true},lsGet('cadete-cbmpr-set',{}));
 function saveSet(){ lsSet('cadete-cbmpr-set',SET); }
 
@@ -5488,6 +5550,9 @@ const ICO={
   sound:svgI('<path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 8a5 5 0 0 1 0 8"/>'),
   soundLow:svgI('<path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 10a3 3 0 0 1 0 4"/>'),
   mute:svgI('<path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 15l4-4M21 15l-4-4"/>'),
+  sun:svgI('<circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M2.5 12h2.6M18.9 12h2.6M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/>'),
+  moon:svgI('<path d="M20 14.5A8.5 8.5 0 1 1 9.5 4 6.8 6.8 0 0 0 20 14.5z"/>'),
+  auto:svgI('<circle cx="12" cy="12" r="9"/><path fill="currentColor" stroke="none" d="M12 3a9 9 0 0 0 0 18z"/>'),
   heart:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 21s-7.5-4.6-9.6-9.2C1 8.4 3.1 5 6.6 5c2 0 3.4 1.1 4.2 2.4h2.4C14 6.1 15.4 5 17.4 5 20.9 5 23 8.4 21.6 11.8 19.5 16.4 12 21 12 21z"/></svg>'
 };
 function flameSVG(){
@@ -5524,10 +5589,13 @@ function mountCountUps(root){
 const CHECK_SVG='<svg class="checkdraw" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12l6 6L20 6"/></svg>';
 
 /* ===================== CABEÇALHO ===================== */
+const THEME_LBL={sys:'Tema: automático (do aparelho)',light:'Tema: claro',dark:'Tema: escuro'};
+const THEME_ICO={sys:ICO.auto,light:ICO.sun,dark:ICO.moon};
 function header(){
   const d=new Date().toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'short'}).replace(/\./g,'');
   const vi=SET.vol<=0?ICO.mute:(SET.vol<0.6?ICO.soundLow:ICO.sound);
-  return '<div class="top"><span class="date">'+esc(d)+'</span><span class="topr">'+(undoStack.length?'<button class="undobtn" data-a="undo">Desfazer</button>':'')+'<button class="iconbtn" data-a="sndToggle" aria-label="Som: '+(SET.vol<=0?'desligado':(SET.vol<0.6?'baixo':'normal'))+'">'+vi+'</button><span id="syncEl" class="sync '+SYNC.mode+'">'+syncLabel()+'</span></span></div>';
+  const th=UI.theme==='light'||UI.theme==='dark'?UI.theme:'sys';
+  return '<div class="top"><span class="date">'+esc(d)+'</span><span class="topr">'+(undoStack.length?'<button class="undobtn" data-a="undo">Desfazer</button>':'')+'<button class="iconbtn" data-a="themeToggle" aria-label="'+THEME_LBL[th]+', toque para trocar">'+THEME_ICO[th]+'</button><button class="iconbtn" data-a="sndToggle" aria-label="Som: '+(SET.vol<=0?'desligado':(SET.vol<0.6?'baixo':'normal'))+'">'+vi+'</button><span id="syncEl" class="sync '+SYNC.mode+'">'+syncLabel()+'</span></span></div>';
 }
 function pageHead(title,sub){ return header()+'<h1>'+esc(title)+'</h1><div class="hazard"></div>'+(sub?'<p class="lede">'+sub+'</p>':''); }
 
@@ -6603,6 +6671,7 @@ const A={
   panic:()=>{ clearModes(); tutor.rf=null; UI.tab='hoje'; saveUI(); render(); },
   undo:()=>{ if(!undoStack.length) return; SND.tap(); const last=undoStack.pop(); try{ replaceState(migrate(JSON.parse(last))); commit(); }catch(e){} closeSheetSilently(); render(); toast('Ação desfeita.'); },
   sndToggle:()=>{ const v=SET.vol<=0?0.8:(SET.vol>=0.6?0.4:0); SND.setVol(v); if(v>0){ SND.unlock(); SND.ok(); } render(); toast(v<=0?'Som desligado.':(v<0.6?'Som baixo.':'Som normal.')); },
+  themeToggle:()=>{ const th=UI.theme==='light'||UI.theme==='dark'?UI.theme:'sys'; UI.theme={sys:'light',light:'dark',dark:'sys'}[th]; saveUI(); applyTheme(); render(); toast(THEME_LBL[UI.theme==='light'||UI.theme==='dark'?UI.theme:'sys']+'.'); },
   /* hoje */
   gtToggle:()=>{ if(GT.start!=null){ GT.acc+=(Date.now()-GT.start)/1000; GT.start=null; SND.tap(); } else { GT.start=Date.now(); SND.start(); } gtSave(); render(); },
   gtMode:b=>{ if(gtState()!=='idle') return; GT.mode=b.dataset.v; GT.phase='focus'; gtSave(); render(); },

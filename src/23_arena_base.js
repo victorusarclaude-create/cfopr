@@ -124,7 +124,7 @@ function arAsChoice(r){
     while(ws.length<4&&g<60){ g++; const pat=r.sl.map(s=>s==='must'?rC(.75):s==='no'?rC(.3):rC(.5)); const bad=r.sl.some((s,i)=>(s==='must'&&!pat[i])||(s==='no'&&pat[i])); if(!bad) continue; const t=arCommaText(r.ch,pat); if(t!==ok&&ws.indexOf(t)<0) ws.push(t); }
     if(ws.length<2) return null; return arCh('Assinale a frase com a pontuação correta.',ok,ws,{x:r.x}); }
   if(r.k==='map'&&typeof AR_ZONES!=='undefined'){ return arCh(r.q,AR_ZONES[r.zone].n,Object.keys(AR_ZONES).filter(z=>z!==r.zone).map(z=>AR_ZONES[z].n),{x:r.x}); }
-  if(r.k==='ptable'&&typeof AR_EL!=='undefined'){ const e=AR_EL.find(x=>x.s===r.sym); return arCh(r.q,e.s+' ('+e.n+')',rN(AR_EL.filter(x=>x.s!==r.sym&&x.z<=36),6).map(x=>x.s+' ('+x.n+')'),{x:r.x}); }
+  if(r.k==='ptable'&&typeof AR_EL!=='undefined'){ const syms=Array.isArray(r.sym)?r.sym:[r.sym]; const e=AR_EL.find(x=>x.s===syms[0]); return arCh(r.q,e.s+' ('+e.n+')',rN(AR_EL.filter(x=>syms.indexOf(x.s)<0&&x.z<=36),6).map(x=>x.s+' ('+x.n+')'),{x:r.x}); }
   if(r.k==='balance'){ const ok=r.co.join(', '), ws=[]; let g=0; while(ws.length<4&&g<60){ g++; const c=r.co.map(v=>Math.max(1,v+rI(-1,2))); const s=c.join(', '); if(s!==ok&&ws.indexOf(s)<0&&!arCoefEq(c,r.co)) ws.push(s); }
     return arCh(r.q+'\n'+arEqText(r.L,r.R,null)+'\nCoeficientes (na ordem, menores inteiros):',ok,ws,{x:r.x}); }
   return null;

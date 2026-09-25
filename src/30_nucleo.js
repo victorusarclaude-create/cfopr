@@ -97,6 +97,9 @@ let S;
 try{ S=migrate(JSON.parse(localStorage.getItem(LS)||'null')); }catch(e){ S=defaultState(); }
 let UI=Object.assign({tab:'hoje'},lsGet(LS_UI,{}));
 function saveUI(){ lsSet(LS_UI,UI); }
+/* tema: 'claro'/'escuro' força a mão; sem UI.theme, segue o sistema (já aplicado antes da 1ª pintura, no <head>) */
+function applyTheme(){ const t=UI.theme; if(t==='light'||t==='dark') document.documentElement.dataset.theme=t; else delete document.documentElement.dataset.theme; }
+applyTheme();
 const SET=Object.assign({vol:0.8,haptic:true},lsGet('cadete-cbmpr-set',{}));
 function saveSet(){ lsSet('cadete-cbmpr-set',SET); }
 
